@@ -1,6 +1,5 @@
 import { Component, OnInit, viewChild } from '@angular/core';
 import { SelectComponent } from '../../components/forms/select/select.component';
-import { JsonPipe } from '@angular/common';
 
 type DataExplample = {
   id: number;
@@ -12,7 +11,7 @@ type DataExplample = {
   standalone: true,
   imports: [SelectComponent],
   templateUrl: './components.component.html',
-  styleUrl: './components.component.scss'
+  styleUrls: ['./components.component.scss']
 })
 export class ComponentsComponent implements OnInit {
 
@@ -49,7 +48,6 @@ export class ComponentsComponent implements OnInit {
     });
   }
 
-  Remove(country: DataExplample) {
-    this.selectComponent()?.UnselectItem(country);
-  }
+
+
 }

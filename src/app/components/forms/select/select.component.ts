@@ -1,4 +1,16 @@
-import { ChangeDetectionStrategy, Component, CUSTOM_ELEMENTS_SCHEMA, ElementRef, HostListener, input, OnChanges, output, signal, SimpleChanges, TemplateRef, viewChild } from '@angular/core';
+import { 
+  ChangeDetectionStrategy, 
+  Component, 
+  ElementRef, 
+  HostListener, 
+  input, 
+  OnChanges, 
+  output, 
+  signal, 
+  SimpleChanges, 
+  TemplateRef, 
+  viewChild 
+} from '@angular/core';
 import { SelectableOption } from './models/select.models';
 import { FormsModule } from '@angular/forms';
 import { NgTemplateOutlet } from '@angular/common';
@@ -6,22 +18,23 @@ import { NgTemplateOutlet } from '@angular/common';
 @Component({
   selector: 'app-select',
   standalone: true,
-  imports: [NgTemplateOutlet],
+  imports: [NgTemplateOutlet, FormsModule],
   templateUrl: './select.component.html',
   styleUrl: './select.component.scss',
   changeDetection: ChangeDetectionStrategy.OnPush
 })
 export class SelectComponent<TItem> implements OnChanges {
-  listWrapper = viewChild('listWrapper',{read: ElementRef})
+  listWrapper = viewChild('listWrapper', { read: ElementRef })
 
   items = input.required<TItem[]>()
   selectedItems = signal<SelectableOption<TItem>[]>([])
-  filteredItems:SelectableOption<TItem>[] = []
-  selectableItems = signal<SelectableOption<TItem>[]>([])
+  selectableItems: SelectableOption<TItem>[] = []
   preSelectedItems = input<TItem[]>([])
   keyLabel = input<string>('label')
   keyValue = input<string>('value')
+
   multiple = input<boolean>(false)
+  canSearch = input<boolean>(true)
 
   selectionTemplate = input<TemplateRef<TItem>>()
   itemTemplate = input<TemplateRef<TItem>>()
@@ -29,7 +42,8 @@ export class SelectComponent<TItem> implements OnChanges {
   OnSelectItem = output<TItem[]>()
 
   protected uniqueId = this.GenerateUniqueId();
-  protected activeList = signal<boolean>(false);
+  protected activeList = signal<boolean>(true);
+  protected searchValue = signal<string>('');
 
   ngOnChanges(changes: SimpleChanges): void {
     const { items } = changes;
@@ -43,24 +57,25 @@ export class SelectComponent<TItem> implements OnChanges {
     if (!event.target) return;
     const target = event.target as HTMLElement;
     if (!this.listWrapper()?.nativeElement.contains(target) && this.activeList()) {
-      this.activeList.set(false);
+      this.SetActiveList(false);
     }
   }
 
   InitialSetup() {
-    
-    this.selectableItems.update(items => {
-      items = this.items().map<SelectableOption<TItem>>(item => {
+
+    this.selectableItems = this.items()
+      .map<SelectableOption<TItem>>(item => {
         let option: SelectableOption<TItem> = {
           option: {
             value: this.ItemValue(item),
             label: this.ItemLabel(item),
             checked: false,
-            show: true
+            show: true,
+            orderSelected: null
           },
           originItem: item
         }
-        if(this.multiple()){
+        if (this.multiple()) {
           option.option.checked = this.preSelectedItems().some(defaultItem => this.ItemValue(defaultItem) === this.ItemValue(item))
         }
         else {
@@ -68,13 +83,12 @@ export class SelectComponent<TItem> implements OnChanges {
         }
         return option;
       })
-      return items;
-    })
 
-    let selectedItems = this.selectableItems().filter(item => item.option.checked);
+
+    let selectedItems = this.selectableItems.filter(item => item.option.checked);
     this.SetSelectedItems(selectedItems);
 
-    this.filteredItems = this.selectableItems();
+    this.ResetFilteredItems();
 
   }
 
@@ -95,61 +109,60 @@ export class SelectComponent<TItem> implements OnChanges {
     const target = event.target as HTMLInputElement;
     const value = target.value;
 
-    if(!this.multiple()) {
-      for (const items of this.filteredItems) {
+    if (!this.multiple()) {
+      for (const items of this.selectableItems) {
         items.option.checked = items.option.value == value;
       }
     }
+    else {
+      const item = this.selectableItems.find(item => item.option.value == value);
+      const checked = target.checked;
+      if (item) {
+        item.option.checked = checked;
+      }
+    }
 
-    let items = this.selectableItems().filter(item => item.option.checked);
+    let items = this.selectableItems.filter(item => item.option.checked);
 
     this.SetSelectedItems(items);
 
     let originItems = items.map(item => item.originItem);
     this.OnSelectItem.emit(originItems);
-  
-    if(!this.multiple()) {
+
+    if (!this.multiple()) {
       this.activeList.set(false);
     }
   }
 
   ToggleList() {
-    this.activeList.set(!this.activeList());
+    this.SetActiveList(!this.activeList());
+  }
+
+  ResetFilteredItems() {
+    for (const item of this.selectableItems) {
+      item.option.show = true;
+    }
+  }
+
+  SetActiveList(value: boolean) {
+    if (!value) {
+      this.searchValue.set('');
+      this.ResetFilteredItems();
+    }
+
+    this.activeList.set(value);
   }
 
   Search(event: Event) {
     const value = (event.target as HTMLInputElement).value;
 
-    let items = this.selectableItems().map(item => {
-        item.option.show = item.option.label.toLowerCase().includes(value.toLowerCase());
-        return item;
-    })
-
-    this.filteredItems = items;
+    this.searchValue.set(value);
+    for (const item of this.selectableItems) {
+      item.option.show = item.option.label.toLowerCase().includes(value.toLowerCase());
+    }
   }
 
-  public UnselectItem(item: TItem) {
-    this.selectableItems.update(items => {
-      items = items.map(currentItem => {
-        let originItem = currentItem.originItem as any;
-        let passedItem = item as any;
-        if (originItem[this.keyValue()] == passedItem[this.keyValue()]) {
-          currentItem.option.checked = false;
-        }
-        return currentItem;
-      })
-      return items;
-    })
-
-    let selectedItems = this.selectableItems().filter(item => item.option.checked);
-    this.SetSelectedItems(selectedItems);
-
-    this.filteredItems = this.selectableItems();
-
-
-    this.OnSelectItem.emit(selectedItems.map(item => item.originItem));
-  }
-
+ 
   private GenerateUniqueId(): string {
     const chars = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789';
     let result = '';

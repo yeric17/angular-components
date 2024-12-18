@@ -4,6 +4,7 @@
         [items]="countries"
         keyValue="id"
         keyLabel="name"
+        [multiple]="true"
         (OnSelectItem)="SelectCountry($event)">
         Paises
     </app-select>
