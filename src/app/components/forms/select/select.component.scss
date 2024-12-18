@@ -1,4 +1,5 @@
 .select{
+    --button-height: 38px;
     position: relative;
     &__input{
         display: none;
@@ -7,25 +8,59 @@
 
 .select__button{
     text-align: left;
-}
-.select__list-wrapper{
+    background-color: transparent;
+    border: 1px solid #ced4da;
+    border-radius: 4px;
+    padding: .375rem .75rem;
+    height: var(--button-height);
+    display: grid;
+    grid-template-columns: 1fr 1rem;
+    align-items: center;
+    &__text{
+        overflow: hidden;
+        text-overflow: ellipsis;
+        white-space: nowrap;
 
+    }
+}
+
+.select__button__icon{
+    margin-left: auto;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: transform 0.2s ease;
+    svg{
+        width: 1em;
+        height: 1em;
+    }
+    &.active{
+        transform: rotate(180deg);
+    }
+}
+
+
+.select__list-wrapper{
     background-color: #fff;
     position: absolute;
     z-index: 100;
     left: 0;
-    top: 100%;
+    top: calc(100% + 4px);
     transform: scaleY(0);
     transform-origin: top;
     visibility: hidden;
     transition: transform 0.1s ease;
+    box-shadow: 0 0 0.5rem rgba(0, 0, 0, 0.1);
+    padding: .75rem;
+    width: 100%;
+    box-sizing: border-box;
+    border-radius: 4px;
 }
 .select__list{
     margin: 0;
     padding: 0;
     display: flex;
     flex-direction: column;
-
 }
 .select__item{
     box-sizing: border-box;
@@ -38,6 +73,7 @@
     }
     &__check, &__radio{
         width: .75em;
+        flex-shrink: 0;
         height: .75em;
         border: 1px solid #e0e0e0;
         display: flex;
@@ -98,4 +134,16 @@
 .select__action{
     display: flex;
     flex-direction: column;
+    gap: .25rem;
+}
+
+.select__search{
+    border: 1px solid #ced4da;
+    height: var(--button-height);
+    width: 100%;
+    border-radius: 4px;
+    padding: .375rem .75rem;
+    box-sizing: border-box;
+    outline: none;
+    margin-bottom: 1rem;
 }

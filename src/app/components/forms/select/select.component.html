@@ -6,25 +6,30 @@
         <button type="button" class="select__button" (click)="ToggleList()">
             <ng-template #defaultSelectionTemaplate>
                 @if(selectedItems().length === 1){
-                    <span>{{selectedItems()[0].option.label}}</span>
+                    <span class="select__button__text">{{selectedItems()[0].option.label}}</span>
                 }
                 @else if (selectedItems().length === selectableItems().length && selectedItems().length > 0){
-                    <span>All</span>
+                    <span class="select__button__text">All</span>
                 }
                 @else if(selectedItems().length > 1){
-                    <span>{{selectedItems()[0].option.label}} <span>(+{{selectedItems().length - 1}} other{{selectedItems().length > 2 ? 's': ''}}) </span></span>
+                    <span class="select__button__text">{{selectedItems()[0].option.label}} <span>(+{{selectedItems().length - 1}} other{{selectedItems().length > 2 ? 's': ''}}) </span></span>
                 }
                 @else{
-                    <span>Select</span>
+                    <span class="select__button__text">Select</span>
                 }
             </ng-template>
             <ng-container [ngTemplateOutlet]="selectionTemplate() || defaultSelectionTemaplate"
                            [ngTemplateOutletContext]="{ $implicit: selectedItems() }">
             </ng-container>
+            <span class="select__button__icon" [class.active]="activeList()">
+                <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor">
+                    <path stroke-linecap="round" stroke-linejoin="round" d="m19.5 8.25-7.5 7.5-7.5-7.5" />
+                </svg>                  
+            </span>
         </button>
     </div>
     <div class="select__list-wrapper" #listWrapper>
-        <input type="text" class="select__search" placeholder="Buscar" (input)="Search($event)">
+        <input type="text" class="select__search" placeholder="Search" (input)="Search($event)">
         <ul class="select__list">
             @for(item of filteredItems; track item.option.value){
                 <li class="select__item" [class.active]="item.option.show">

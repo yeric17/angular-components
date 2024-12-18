@@ -1,8 +1,4 @@
-<div>
-    @for(country of selectedCountries; track country.id){
-        <button type="button" (click)="Remove(country)">{{country.name}}</button>
-    }
-</div>
+
 <div class="mi-select">
     <app-select
         [items]="countries"

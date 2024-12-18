@@ -1,4 +1,4 @@
-import { Component, CUSTOM_ELEMENTS_SCHEMA, ElementRef, HostListener, input, OnChanges, output, signal, SimpleChanges, TemplateRef, viewChild } from '@angular/core';
+import { ChangeDetectionStrategy, Component, CUSTOM_ELEMENTS_SCHEMA, ElementRef, HostListener, input, OnChanges, output, signal, SimpleChanges, TemplateRef, viewChild } from '@angular/core';
 import { SelectableOption } from './models/select.models';
 import { FormsModule } from '@angular/forms';
 import { NgTemplateOutlet } from '@angular/common';
@@ -9,7 +9,7 @@ import { NgTemplateOutlet } from '@angular/common';
   imports: [NgTemplateOutlet],
   templateUrl: './select.component.html',
   styleUrl: './select.component.scss',
-  schemas: []
+  changeDetection: ChangeDetectionStrategy.OnPush
 })
 export class SelectComponent<TItem> implements OnChanges {
   listWrapper = viewChild('listWrapper',{read: ElementRef})
@@ -29,7 +29,7 @@ export class SelectComponent<TItem> implements OnChanges {
   OnSelectItem = output<TItem[]>()
 
   protected uniqueId = this.GenerateUniqueId();
-  protected activeList = signal<boolean>(true);
+  protected activeList = signal<boolean>(false);
 
   ngOnChanges(changes: SimpleChanges): void {
     const { items } = changes;
@@ -108,6 +108,9 @@ export class SelectComponent<TItem> implements OnChanges {
     let originItems = items.map(item => item.originItem);
     this.OnSelectItem.emit(originItems);
   
+    if(!this.multiple()) {
+      this.activeList.set(false);
+    }
   }
 
   ToggleList() {

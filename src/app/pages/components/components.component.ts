@@ -35,7 +35,7 @@ export class ComponentsComponent implements OnInit {
     return new Promise<DataExplample[]>((resolve) => {
       setTimeout(() => {
         resolve([
-          { id: 1, name: 'Argentina esto es un texto mucho mas grande' },
+          { id: 1, name: 'Argentina' },
           { id: 2, name: 'Brazil' },
           { id: 3, name: 'Chile' },
           { id: 4, name: 'Colombia' },
