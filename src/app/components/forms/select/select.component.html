@@ -1,0 +1,60 @@
+<div class="select" [class.active]="activeList()">
+    <div class="select__action">
+        <label class="select__label">
+            <ng-content></ng-content>
+        </label>
+        <button type="button" class="select__button" (click)="ToggleList()">
+            <ng-template #defaultSelectionTemaplate>
+                @if(selectedItems().length === 1){
+                    <span>{{selectedItems()[0].option.label}}</span>
+                }
+                @else if (selectedItems().length === selectableItems().length && selectedItems().length > 0){
+                    <span>All</span>
+                }
+                @else if(selectedItems().length > 1){
+                    <span>{{selectedItems()[0].option.label}} <span>(+{{selectedItems().length - 1}} other{{selectedItems().length > 2 ? 's': ''}}) </span></span>
+                }
+                @else{
+                    <span>Select</span>
+                }
+            </ng-template>
+            <ng-container [ngTemplateOutlet]="selectionTemplate() || defaultSelectionTemaplate"
+                           [ngTemplateOutletContext]="{ $implicit: selectedItems() }">
+            </ng-container>
+        </button>
+    </div>
+    <div class="select__list-wrapper" #listWrapper>
+        <input type="text" class="select__search" placeholder="Buscar" (input)="Search($event)">
+        <ul class="select__list">
+            @for(item of filteredItems; track item.option.value){
+                <li class="select__item" [class.active]="item.option.show">
+                    <label class="select__item__label">
+                        <input class="select__input" value="{{item.option.value}}" type="{{this.multiple() ? 'checkbox' : 'radio'}}" [name]="uniqueId" (change)="ItemChange($event)" [(checked)]="item.option.checked">
+                        <div class="select__item__content">
+                            @if(this.multiple()){
+                                <span class="select__item__check">
+                                    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 16 16" fill="currentColor">
+                                        <path fill-rule="evenodd" d="M12.416 3.376a.75.75 0 0 1 .208 1.04l-5 7.5a.75.75 0 0 1-1.154.114l-3-3a.75.75 0 0 1 1.06-1.06l2.353 2.353 4.493-6.74a.75.75 0 0 1 1.04-.207Z" clip-rule="evenodd" />
+                                    </svg>                              
+                                </span>
+                            }
+                            @else {
+                                <span class="select__item__radio">
+                                    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 16 16" fill="currentColor">
+                                        <circle cx="8" cy="8" r="3.5" />
+                                    </svg>
+                                </span>
+                            }
+                            <ng-template #defaultItemTemplate>
+                                <span>{{item.option.label}}</span>
+                            </ng-template>
+                            <ng-container [ngTemplateOutlet]="itemTemplate() || defaultItemTemplate"
+                                           [ngTemplateOutletContext]="{ $implicit: item.originItem}">
+                            </ng-container>
+                        </div>
+                    </label>
+                </li>
+            }
+        </ul>
+    </div>
+</div>
