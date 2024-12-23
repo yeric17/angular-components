@@ -8,5 +8,4 @@ export type SelectOption = {
     label: string
     checked: boolean
     show: boolean
-    orderSelected: number | null
 }

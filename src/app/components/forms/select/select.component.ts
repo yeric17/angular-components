@@ -42,7 +42,7 @@ export class SelectComponent<TItem> implements OnChanges {
   OnSelectItem = output<TItem[]>()
 
   protected uniqueId = this.GenerateUniqueId();
-  protected activeList = signal<boolean>(true);
+  activeList = signal<boolean>(false);
   protected searchValue = signal<string>('');
 
   ngOnChanges(changes: SimpleChanges): void {
@@ -71,7 +71,6 @@ export class SelectComponent<TItem> implements OnChanges {
             label: this.ItemLabel(item),
             checked: false,
             show: true,
-            orderSelected: null
           },
           originItem: item
         }
@@ -97,7 +96,8 @@ export class SelectComponent<TItem> implements OnChanges {
   }
 
   protected ItemValue(item: TItem): string {
-    return (item as any)[this.keyValue()];
+    let value = (item as any)[this.keyValue()];
+    return value ? value.toString() : '';
   }
 
   private SetSelectedItems(items: SelectableOption<TItem>[]) {
@@ -110,8 +110,8 @@ export class SelectComponent<TItem> implements OnChanges {
     const value = target.value;
 
     if (!this.multiple()) {
-      for (const items of this.selectableItems) {
-        items.option.checked = items.option.value == value;
+      for (const item of this.selectableItems) {
+        item.option.checked = item.option.value == value;
       }
     }
     else {
