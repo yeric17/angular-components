@@ -34,7 +34,7 @@ export class SelectComponent<TItem> implements OnChanges {
   keyValue = input<string>('value')
 
   multiple = input<boolean>(false)
-  canSearch = input<boolean>(true)
+  canSearch = input<boolean>(false)
 
   selectionTemplate = input<TemplateRef<TItem>>()
   itemTemplate = input<TemplateRef<TItem>>()
