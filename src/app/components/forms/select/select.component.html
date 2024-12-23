@@ -15,7 +15,7 @@
                     <span class="select__button__text">{{selectedItems()[0].option.label}} <span>(+{{selectedItems().length - 1}} other{{selectedItems().length > 2 ? 's': ''}}) </span></span>
                 }
                 @else{
-                    <span class="select__button__text">Select</span>
+                    <span class="select__button__text">{{placeholder()}}</span>
                 }
             </ng-template>
             <ng-container [ngTemplateOutlet]="selectionTemplate() || defaultSelectionTemaplate"

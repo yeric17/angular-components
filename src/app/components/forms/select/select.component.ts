@@ -32,6 +32,7 @@ export class SelectComponent<TItem> implements OnChanges {
   preSelectedItems = input<TItem[]>([])
   keyLabel = input<string>('label')
   keyValue = input<string>('value')
+  placeholder = input<string>('Choose an item')
 
   multiple = input<boolean>(false)
   canSearch = input<boolean>(false)
