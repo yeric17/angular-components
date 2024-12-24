@@ -1,0 +1,11 @@
+<div class="accordion__item" [class.open]="isOpen()">
+    <button class="accordion__button" type="button" (click)="toggle()">
+        <ng-content select="header"></ng-content>
+        <svg class="accordion__icon" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor">
+            <path stroke-linecap="round" stroke-linejoin="round" d="m19 9-7 7-7-7" />
+        </svg>
+    </button>
+    <div class="accordion__content">
+        <ng-content></ng-content>
+    </div>
+</div>

@@ -10,11 +10,19 @@
 .app__header{
     display: grid;
     height: 72px;
-    box-shadow: 0 2px 4px 0 rgba(0, 0, 0, 0.1);
+    border-bottom: 1px solid #e0e0e0;
 }
 
 .app__menu{
     display: grid;
     min-height: 100%;
-    box-shadow: 2px 0 4px 0 rgba(0, 0, 0, 0.1);
+    border-right: 1px solid #e0e0e0;
+}
+
+.menu__item{
+    list-style: none;
+}
+.menu__link{
+    text-decoration: none;
+    color: inherit;
 }

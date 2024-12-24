@@ -16,7 +16,7 @@ import { FormsModule } from '@angular/forms';
 import { NgTemplateOutlet } from '@angular/common';
 
 @Component({
-  selector: 'app-select',
+  selector: 'ml-select',
   standalone: true,
   imports: [NgTemplateOutlet, FormsModule],
   templateUrl: './select.component.html',

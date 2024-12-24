@@ -1,0 +1,10 @@
+.typo{
+    --size: 1rem;
+    --pg-bottom: 0;
+    --pg-top: 0;
+    --weight: 400;
+    font-size: var(--size);
+    font-weight: var(--weight);
+    padding-bottom: var(--pg-bottom);
+    padding-top: var(--pg-top);
+}

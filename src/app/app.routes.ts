@@ -7,7 +7,13 @@ export const routes: Routes = [
         children:[
             {
                 path: 'forms',
-                loadComponent: () => import('./pages/components/forms-page/forms-page.component').then(m => m.FormsPageComponent)
+                loadComponent: () => import('./pages/components/forms-page/forms-page.component').then(m => m.FormsPageComponent),
+                children: [
+                    {
+                        path: 'select',
+                        loadComponent: () => import('./pages/components/forms-page/select-page/select-page.component').then(m => m.SelectPageComponent)
+                    }
+                ]
             }
         ]
     },

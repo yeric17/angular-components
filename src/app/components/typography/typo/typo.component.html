@@ -1,0 +1,47 @@
+
+<ng-template #defaultTemplate>
+    <ng-content></ng-content>
+</ng-template>
+
+@switch(tag){
+    @case('p'){
+        <p class="typo {{styleRef()}}" [style.--size]="config[styleRef()].size" [style.--weight]="config[styleRef()].weight" [style.--pg-bottom]="config[styleRef()].paddingBottom" [style.--pg-top]="config[styleRef()].paddingTop">
+            <ng-container [ngTemplateOutlet]="defaultTemplate"></ng-container>
+        </p>
+    }
+    @case('h1'){
+        <h1 class="typo {{styleRef()}}" [style.--size]="config[styleRef()].size"  [style.--weight]="config[styleRef()].weight" [style.--pg-bottom]="config[styleRef()].paddingBottom" [style.--pg-top]="config[styleRef()].paddingTop">
+            <ng-container [ngTemplateOutlet]="defaultTemplate"></ng-container>
+        </h1>
+    }
+    @case('h2'){
+        <h2 class="typo {{styleRef()}}" [style.--size]="config[styleRef()].size"  [style.--weight]="config[styleRef()].weight" [style.--pg-bottom]="config[styleRef()].paddingBottom" [style.--pg-top]="config[styleRef()].paddingTop">
+            <ng-container [ngTemplateOutlet]="defaultTemplate"></ng-container>
+        </h2>
+    }
+    @case('h3'){
+        <h3 class="typo {{styleRef()}}" [style.--size]="config[styleRef()].size"  [style.--weight]="config[styleRef()].weight" [style.--pg-bottom]="config[styleRef()].paddingBottom" [style.--pg-top]="config[styleRef()].paddingTop">
+            <ng-container [ngTemplateOutlet]="defaultTemplate"></ng-container>
+        </h3>
+    }
+    @case('h4'){
+        <h4 class="typo {{styleRef()}}" [style.--size]="config[styleRef()].size"  [style.--weight]="config[styleRef()].weight" [style.--pg-bottom]="config[styleRef()].paddingBottom" [style.--pg-top]="config[styleRef()].paddingTop">
+            <ng-container [ngTemplateOutlet]="defaultTemplate"></ng-container>
+        </h4>
+    }
+    @case('h5'){
+        <h5 class="typo {{styleRef()}}" [style.--size]="config[styleRef()].size"  [style.--weight]="config[styleRef()].weight" [style.--pg-bottom]="config[styleRef()].paddingBottom" [style.--pg-top]="config[styleRef()].paddingTop">
+            <ng-container [ngTemplateOutlet]="defaultTemplate"></ng-container>
+        </h5>
+    }
+    @case('h6'){
+        <h6 class="typo {{styleRef()}}" [style.--size]="config[styleRef()].size"  [style.--weight]="config[styleRef()].weight" [style.--pg-bottom]="config[styleRef()].paddingBottom" [style.--pg-top]="config[styleRef()].paddingTop">
+            <ng-container [ngTemplateOutlet]="defaultTemplate"></ng-container>
+        </h6>
+    }
+    @case('span'){
+        <span class="typo {{styleRef()}}" [style.--size]="config[styleRef()].size"  [style.--weight]="config[styleRef()].weight" [style.--pg-bottom]="config[styleRef()].paddingBottom" [style.--pg-top]="config[styleRef()].paddingTop">
+            <ng-container [ngTemplateOutlet]="defaultTemplate"></ng-container>
+        </span>
+    }
+}

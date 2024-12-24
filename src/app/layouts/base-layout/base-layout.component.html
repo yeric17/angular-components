@@ -4,9 +4,28 @@
     </header>
     <div class="app__content">
         <aside class="app__menu">
-            <li>
-                <a routerLink="/forms">Forms</a>
-            </li>
+            <app-accordion>
+                <app-accordion-item>
+                    <header slot="header">
+                        <h3>forms</h3>
+                    </header>
+                    <ul>
+                        <li class="menu__item">
+                            <a class="menu__link" routerLink="/forms/select">Select</a>
+                        </li>
+                    </ul>
+                </app-accordion-item>
+                <app-accordion-item>
+                    <header slot="header">
+                        <h3>components</h3>
+                    </header>
+                    <ul>
+                        <li class="menu__item">
+                            <a class="menu__link" routerLink="/components/accordion">Accordion</a>
+                        </li>
+                    </ul>
+                </app-accordion-item>
+            </app-accordion>
         </aside>
         <main>
             <router-outlet/>
