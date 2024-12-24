@@ -6,7 +6,7 @@ import { RouterOutlet } from '@angular/router';
 @Component({
   selector: 'app-forms-page',
   standalone: true,
-  imports: [SelectComponent,TypoComponent,RouterOutlet],
+  imports: [RouterOutlet],
   templateUrl: './forms-page.component.html',
   styleUrl: './forms-page.component.scss'
 })
