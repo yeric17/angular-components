@@ -19,4 +19,6 @@ export class SelectOptionComponent {
   ItemChange(event: Event) {
     this.OnItemChange.emit(event);
   }
+
+
 }

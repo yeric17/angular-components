@@ -34,6 +34,8 @@ export class SelectComponent<TItem> implements OnChanges, OnInit {
   childItemsElement = contentChildren(SelectOptionComponent, { descendants: true, read: ElementRef });
 
   items = model<TItem[]|undefined>(undefined)
+  itemsContent = signal<TItem[]>([])
+
   contentItems = signal<BaseOption[]>([])
 
   selectedItems = signal<SelectableOption<TItem>[]>([])
@@ -107,6 +109,10 @@ export class SelectComponent<TItem> implements OnChanges, OnInit {
       item.OnItemChange.subscribe((event) => this.ItemChange(event));
       item.show.set(option.option.show);
       item.checked.set(option.option.checked);
+      item.type.set(this.multiple() ? 'checkbox' : 'radio');
+      item.checked.subscribe((value) => {
+        console.log(value)
+      })
       this.selectableItems.push(option)
     }
 
@@ -164,6 +170,7 @@ export class SelectComponent<TItem> implements OnChanges, OnInit {
     const target = event.target as HTMLInputElement;
     const value = target.value;
 
+    const checked = target.checked;
     if (!this.multiple()) {
       for (const item of this.selectableItems) {
         item.option.checked = item.option.value == value;
@@ -171,9 +178,19 @@ export class SelectComponent<TItem> implements OnChanges, OnInit {
     }
     else {
       const item = this.selectableItems.find(item => item.option.value == value);
-      const checked = target.checked;
       if (item) {
         item.option.checked = checked;
+      }
+    }
+
+    if(!this.items()) {
+      for(let i = 0; i < this.childItemsComponent().length; i++) {
+        const item = this.childItemsComponent()[i];
+        const option = this.selectableItems.find(option => option.option.value == item.value());
+
+        if (option) {
+          item.checked.set(option.option.checked);
+        }
       }
     }
 
@@ -183,6 +200,7 @@ export class SelectComponent<TItem> implements OnChanges, OnInit {
 
     let originItems = items.map(item => item.originItem);
     this.OnSelectItem.emit(originItems);
+
 
     if (!this.multiple()) {
       this.activeList.set(false);
@@ -214,6 +232,17 @@ export class SelectComponent<TItem> implements OnChanges, OnInit {
     this.searchValue.set(value);
     for (const item of this.selectableItems) {
       item.option.show = item.option.label.toLowerCase().includes(value.toLowerCase());
+    }
+
+    if(!this.items()) {
+      for(let i = 0; i < this.childItemsComponent().length; i++) {
+        const item = this.childItemsComponent()[i];
+        const option = this.selectableItems.find(option => option.option.value == item.value());
+
+        if (option) {
+          item.show.set(option.option.show);
+        }
+      }
     }
   }
 

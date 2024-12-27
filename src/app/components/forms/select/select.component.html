@@ -42,7 +42,7 @@
         <ul class="select__list">
             @if(items()){
                 @for(item of selectableItems; track item.option.value){
-                    <ml-select-option [name]="uniqueId" [value]="item.option.value" (OnItemChange)="ItemChange($event)" [checked]="item.option.checked" [type]="multiple() ? 'checkbox' : 'radio'">
+                    <ml-select-option  [name]="uniqueId" [value]="item.option.value" (OnItemChange)="ItemChange($event)" [checked]="item.option.checked" [type]="multiple() ? 'checkbox' : 'radio'">
                         {{item.option.label}}
                     </ml-select-option>
                 }
