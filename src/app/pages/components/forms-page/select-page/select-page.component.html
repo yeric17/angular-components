@@ -4,11 +4,11 @@
     <app-typo styleRef="body">The select component is a dropdown list that allows users to select one or more items from a list of options.</app-typo>
     <app-typo styleRef="heading2">Setup</app-typo>
     <app-typo styleRef="body">To use the select component, you need to import the SelectComponent.</app-typo>
-    <ml-select
-    [items]="items"
-    keyLabel="name"
-    keyValue="id">
-        Items
+    <ml-select [canSearch]="true">
+        <ml-select-option value="item1" name="group1">Item 1</ml-select-option>
+        <ml-select-option value="item2" name="group1">Item 2</ml-select-option>
+        <ml-select-option value="item3" name="group1">Item 3</ml-select-option>
+        <ml-select-option value="item4" name="group1">Item 4</ml-select-option>
     </ml-select>
 </div>
 

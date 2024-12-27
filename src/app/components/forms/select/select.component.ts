@@ -1,32 +1,41 @@
 import { 
   ChangeDetectionStrategy, 
   Component, 
+  contentChildren, 
   ElementRef, 
   HostListener, 
   input, 
+  model, 
   OnChanges, 
+  OnInit, 
   output, 
   signal, 
   SimpleChanges, 
   TemplateRef, 
-  viewChild 
+  viewChild
 } from '@angular/core';
-import { SelectableOption } from './models/select.models';
+import { BaseOption, SelectableOption } from './models/select.models';
 import { FormsModule } from '@angular/forms';
 import { NgTemplateOutlet } from '@angular/common';
+import { SelectOptionComponent } from './select-option/select-option.component';
 
 @Component({
   selector: 'ml-select',
   standalone: true,
-  imports: [NgTemplateOutlet, FormsModule],
+  imports: [NgTemplateOutlet, FormsModule, SelectOptionComponent],
   templateUrl: './select.component.html',
   styleUrl: './select.component.scss',
   changeDetection: ChangeDetectionStrategy.OnPush
 })
-export class SelectComponent<TItem> implements OnChanges {
+export class SelectComponent<TItem> implements OnChanges, OnInit {
   listWrapper = viewChild('listWrapper', { read: ElementRef })
+  
+  childItemsComponent = contentChildren(SelectOptionComponent, { descendants: true});
+  childItemsElement = contentChildren(SelectOptionComponent, { descendants: true, read: ElementRef });
 
-  items = input.required<TItem[]>()
+  items = model<TItem[]|undefined>(undefined)
+  contentItems = signal<BaseOption[]>([])
+
   selectedItems = signal<SelectableOption<TItem>[]>([])
   selectableItems: SelectableOption<TItem>[] = []
   preSelectedItems = input<TItem[]>([])
@@ -46,10 +55,16 @@ export class SelectComponent<TItem> implements OnChanges {
   activeList = signal<boolean>(false);
   protected searchValue = signal<string>('');
 
+  ngOnInit(): void {
+    this.InitialSetup();
+  }
+
   ngOnChanges(changes: SimpleChanges): void {
     const { items } = changes;
     if (items) {
-      this.InitialSetup();
+      const currentItems = this.items()
+      if (!currentItems) return;
+      this.SetupByItems(currentItems);
     }
   }
 
@@ -64,7 +79,47 @@ export class SelectComponent<TItem> implements OnChanges {
 
   InitialSetup() {
 
-    this.selectableItems = this.items()
+    const items = this.items();
+
+    if (items) {
+      this.SetupByItems(items);
+      return;
+    }
+
+
+
+    for(let i = 0; i < this.childItemsComponent().length; i++) {
+      const item = this.childItemsComponent()[i];
+      const element = this.childItemsElement()[i];
+      const option: SelectableOption<TItem> = {
+        option: {
+          value: item.value(),
+          label: element.nativeElement.textContent,
+          checked: item.checked(),
+          show: item.show()
+        },
+        originItem: {
+          label: element.nativeElement.textContent,
+          value: item.value()
+        } as any
+      }
+
+      item.OnItemChange.subscribe((event) => this.ItemChange(event));
+      item.show.set(option.option.show);
+      item.checked.set(option.option.checked);
+      this.selectableItems.push(option)
+    }
+
+ 
+    let selectedItems = this.selectableItems.filter(item => item.option.checked);
+    this.SetSelectedItems(selectedItems);
+
+    this.ResetFilteredItems();
+
+  }
+
+  SetupByItems(items: TItem[]) {
+    this.selectableItems = items
       .map<SelectableOption<TItem>>(item => {
         let option: SelectableOption<TItem> = {
           option: {
@@ -89,7 +144,6 @@ export class SelectComponent<TItem> implements OnChanges {
     this.SetSelectedItems(selectedItems);
 
     this.ResetFilteredItems();
-
   }
 
   protected ItemLabel(item: TItem): string {

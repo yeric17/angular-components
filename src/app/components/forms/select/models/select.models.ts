@@ -9,3 +9,8 @@ export type SelectOption = {
     checked: boolean
     show: boolean
 }
+
+export type BaseOption = {
+    value: string
+    label: string
+}

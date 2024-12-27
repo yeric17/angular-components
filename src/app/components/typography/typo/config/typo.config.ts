@@ -8,7 +8,7 @@ export const baseConfig: TypoConfig = {
     heading2: {tag: 'h2', size: '2rem', paddingTop: '1rem', paddingBottom: '1rem', weight: 'bold'},
     heading3: {tag: 'h3', size: '1.75rem', paddingTop: '1rem', paddingBottom: '1rem', weight: 'bold'},
     subtitle: {tag: 'h4', size: '1.5rem', paddingTop: '1rem', paddingBottom: '1rem', weight: 'bold'},
-    body: {tag: 'p', size: '1.25rem', paddingTop: '1rem', paddingBottom: '1rem', weight: 'normal'},
+    body: {tag: 'p', size: '1rem', paddingTop: '1rem', paddingBottom: '1rem', weight: 'normal'},
     caption: {tag: 'span', size: '1rem', paddingTop: '1rem', paddingBottom: '1rem', weight: 'normal'},
     overline: {tag: 'span', size: '0.75rem', paddingTop: '1rem', paddingBottom: '1rem', weight: 'normal'},
     button: {tag: 'span', size: '1rem', paddingTop: '1rem', paddingBottom: '1rem', weight: 'bold'},

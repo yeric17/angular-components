@@ -40,29 +40,19 @@
             </label>
         }
         <ul class="select__list">
-            @for(item of selectableItems; track item.option.value){
-                <li class="select__item" [class.active]="item.option.show" [class.selected]="item.option.checked">
-                    <label class="select__item__label">
-                        <input class="select__input" value="{{item.option.value}}" type="{{this.multiple() ? 'checkbox' : 'radio'}}" [name]="uniqueId" (change)="ItemChange($event)">
-                        <div class="select__item__content">
-
-                            <span class="select__item__check">
-                                <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 16 16" fill="currentColor">
-                                    <path fill-rule="evenodd" d="M12.416 3.376a.75.75 0 0 1 .208 1.04l-5 7.5a.75.75 0 0 1-1.154.114l-3-3a.75.75 0 0 1 1.06-1.06l2.353 2.353 4.493-6.74a.75.75 0 0 1 1.04-.207Z" clip-rule="evenodd" />
-                                </svg>                              
-                            </span>
-                            
-
-                            <ng-template #defaultItemTemplate>
-                                <span>{{item.option.label}}</span>
-                            </ng-template>
-                            <ng-container [ngTemplateOutlet]="itemTemplate() || defaultItemTemplate"
-                                           [ngTemplateOutletContext]="{ $implicit: item.originItem}">
-                            </ng-container>
-                        </div>
-                    </label>
-                </li>
+            @if(items()){
+                @for(item of selectableItems; track item.option.value){
+                    <ml-select-option [name]="uniqueId" [value]="item.option.value" (OnItemChange)="ItemChange($event)" [checked]="item.option.checked" [type]="multiple() ? 'checkbox' : 'radio'">
+                        {{item.option.label}}
+                    </ml-select-option>
+                }
             }
+            @else {
+                <ng-container [ngTemplateOutlet]="defaultTemplate"></ng-container>
+            }
+            <ng-template #defaultTemplate>
+                <ng-content></ng-content>
+            </ng-template>
         </ul>
     </div>
 </div>

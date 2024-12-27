@@ -1,11 +1,12 @@
 import { Component } from '@angular/core';
 import { SelectComponent } from '../../../../components/forms/select/select.component';
 import { TypoComponent } from '../../../../components/typography/typo/typo.component';
+import { SelectOptionComponent } from '../../../../components/forms/select/select-option/select-option.component';
 
 @Component({
   selector: 'app-select-page',
   standalone: true,
-  imports: [SelectComponent,TypoComponent],
+  imports: [SelectComponent,TypoComponent,SelectOptionComponent],
   templateUrl: './select-page.component.html',
   styleUrl: './select-page.component.scss'
 })

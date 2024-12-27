@@ -1,9 +1,7 @@
 .select{
     --button-height: 38px;
     position: relative;
-    &__input{
-        display: none;
-    }
+
 }
 
 .select__button{
@@ -56,61 +54,7 @@
     box-sizing: border-box;
     border-radius: 4px;
 }
-.select__list{
-    margin: 0;
-    padding: 0;
-    display: flex;
-    flex-direction: column;
-}
-.select__item{
-    box-sizing: border-box;
-    list-style: none;
-    display: none;
-    --accent-color: #007bff;
-    --check-color: #fff;
-    &.active{
-        display: block;
-    }
-    &__check, &__radio{
-        width: .75em;
-        flex-shrink: 0;
-        height: .75em;
-        border: 1px solid #e0e0e0;
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        color: var(--check-color);
-        border-radius: 3px;
-        svg{
-            transform: scale(0);
-            width: 100%;
-            height: 100%;
-        }
-    }
-    
-    &__label{
-        --padding-inline: 0.5rem;
-        --padding-block: .25rem;
-        display: flex;
-        padding: var(--padding-block) var(--padding-inline);
-        &:hover{
-            background-color: #f8f9fa;
-        }
-    }
-    &__content{
-        display: flex;
-        gap: .5rem;
-        align-items: center;
-    }
-}
 
-.select__item.selected .select__item__check{
-    background-color: var(--accent-color);
-    border-color: var(--accent-color);
-    svg{
-        transform: scale(1);
-    }
-}
 
 
 .active {
