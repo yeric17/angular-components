@@ -35,10 +35,9 @@
     }
     
     &__label{
-        --padding-inline: 0.5rem;
-        --padding-block: .25rem;
         display: flex;
-        padding: var(--padding-block) var(--padding-inline);
+        padding-inline: var(--form-field-padding-x);
+        padding-block: var(--form-field-padding-y);
         &:hover{
             background-color: #f8f9fa;
         }

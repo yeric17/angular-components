@@ -53,6 +53,7 @@ export class SelectComponent<TItem> implements OnChanges, OnInit {
   canSearch = input<boolean>(false)
   selectionTemplate = input<TemplateRef<any> | undefined>(undefined)
   optionTemplateRef = input<TemplateRef<any> | undefined>(undefined);
+  size = input<'sm' | 'md' | 'lg'>('md')
   // #endregion
 
   // #region outputs

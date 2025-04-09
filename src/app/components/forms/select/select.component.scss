@@ -1,44 +1,63 @@
-.select{
-    --button-height: 38px;
-    position: relative;
+:host{
+    --select-border-radius: var(--form-field-border-radius);
 
+    --select-padding-x: var(--form-field-padding-x);
+    --select-padding-y: var(--form-field-padding-y);
+    --select-padding-x-sm: var(--form-field-padding-x-sm);
+    --select-padding-y-sm: var(--form-field-padding-y-sm);
+
+    --select-height: var(--form-field-height);
+    --select-height-sm: var(--form-field-height-sm);
+    --select-height-lg: var(--form-field-height-lg);
+
+    --select-color: var(--form-field-color);
+    --select-border-color: var(--form-field-border-color);
+    --select-background: var(--form-field-background);
+    --select-border-width: var(--form-field-border-width);
 }
 
-.select__button{
+
+.select {
+    position: relative;
+}
+
+.select__button {
     text-align: left;
-    background-color: transparent;
-    border: 1px solid #ced4da;
-    border-radius: 4px;
-    padding: .375rem .75rem;
-    height: var(--button-height);
+    background: var(--select-background);
+    border: var(--select-border-width) solid var(--select-border-color);
+    border-radius: var(--select-border-radius);
+    padding-inline: var(--select-padding-x);
+    padding-block: var(--select-padding-y);
+    height: var(--select-height);
     display: grid;
     grid-template-columns: 1fr 1rem;
     align-items: center;
-    &__text{
-        overflow: hidden;
-        text-overflow: ellipsis;
-        white-space: nowrap;
-
-    }
 }
 
-.select__button__icon{
+.select__button__text {
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
+
+.select__button__icon {
     margin-left: auto;
     display: flex;
     align-items: center;
     justify-content: center;
     transition: transform 0.2s ease;
-    svg{
-        width: 1em;
-        height: 1em;
-    }
-    &.active{
-        transform: rotate(180deg);
-    }
 }
 
+.select__button__icon svg {
+    width: 1em;
+    height: 1em;
+}
 
-.select__list-wrapper{
+.select__button__icon.active {
+    transform: rotate(180deg);
+}
+
+.select__list-wrapper {
     background-color: #fff;
     position: absolute;
     z-index: 100;
@@ -52,49 +71,81 @@
     padding: .75rem;
     width: 100%;
     box-sizing: border-box;
-    border-radius: 4px;
+    border-radius: var(--select-border-radius);
 }
 
-
-
-.active {
-    .select__list-wrapper{
-        visibility: visible;
-        transform: scaleY(1);
-    }
+.active .select__list-wrapper {
+    visibility: visible;
+    transform: scaleY(1);
 }
 
-.select__action{
+.select__action {
     display: flex;
     flex-direction: column;
     gap: .25rem;
 }
 
-.select__search{
+.select__search {
     display: grid;
     grid-template-columns: 2rem 1fr;
-    border: 1px solid #ced4da;
-    border-radius: 4px;
+    border: var(--select-border-width) solid var(--select-border-color);
+    border-radius: var(--select-border-radius);
     box-sizing: border-box;
-    height: var(--button-height);
+    height: var(--select-height);
     margin-bottom: 1rem;
-    &__input{
-        width: 100%;
-        padding-inline: .375rem;
-        padding-block: .5rem;
-        padding-left: 0;
-        box-sizing: border-box;
-        outline: none;
-        display: inline-flex;
-        border: none;
-    }
-    &__icon{
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        svg{
-            width: 1em;
-            height: 1em;
-        }
-    }
 }
+
+.select__search__input {
+    width: 100%;
+    padding-inline: var(--select-padding-x);
+    padding-block: var(--select-padding-y);
+    padding-left: 0;
+    box-sizing: border-box;
+    outline: none;
+    display: inline-flex;
+    border: none;
+}
+
+.select__search__icon {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.select__search__icon svg {
+    width: 1em;
+    height: 1em;
+}
+
+//size modifiers
+
+.sm .select__button {
+    height: var(--select-height-sm);
+    padding-inline: var(--select-padding-x-sm);
+    padding-block: var(--select-padding-y-sm);
+}
+
+.lg .select__button {
+    height: var(--select-height-lg);
+    padding-inline: var(--select-padding-x-lg);
+    padding-block: var(--select-padding-y-lg);
+}
+
+.sm .select__search {
+    height: var(--select-height-sm);
+}
+.lg .select__search {
+    height: var(--select-height-lg);
+}
+
+.sm .select__search__input {
+    padding-inline: var(--select-padding-x-sm);
+    padding-block: var(--select-padding-y-sm);
+}
+
+.lg .select__search__input {
+    padding-inline: var(--select-padding-x-lg);
+    padding-block: var(--select-padding-y-lg);
+}
+
+
