@@ -41,18 +41,23 @@
         }
         <ul class="select__list">
             @if(items()){
-                @for(item of selectableItems; track item.option.value){
-                    <ml-select-option  [name]="uniqueId" [value]="item.option.value" (OnItemChange)="itemChange($event)" [checked]="item.option.checked" [type]="multiple() ? 'checkbox' : 'radio'">
-                        {{item.option.label}}
+                @for(item of filteredItems(); track item.option.value; let idx = $index){
+
+                    <ml-select-option  
+                        [name]="uniqueId"
+                        [value]="item.option.value" 
+                        (OnItemChange)="itemChange($event)" 
+                        [checked]="item.option.checked" 
+                        [type]="multiple() ? 'checkbox' : 'radio'">
+                        <ng-container [ngTemplateOutlet]="optionTemplateRef() ?? defaultOptionTemplate"
+                                [ngTemplateOutletContext]="{ $implicit: item, idx: idx }"></ng-container>
+
                     </ml-select-option>
                 }
+                <ng-template let-item #defaultOptionTemplate>
+                        {{item.option.label}}
+                </ng-template>
             }
-            @else {
-                <ng-container [ngTemplateOutlet]="defaultTemplate"></ng-container>
-            }
-            <ng-template #defaultTemplate>
-                <ng-content></ng-content>
-            </ng-template>
         </ul>
     </div>
 </div>
