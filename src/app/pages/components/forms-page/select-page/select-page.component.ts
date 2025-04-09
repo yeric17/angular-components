@@ -1,7 +1,7 @@
 import { Component } from '@angular/core';
 import { SelectComponent } from '../../../../components/forms/select/select.component';
 import { TypoComponent } from '../../../../components/typography/typo/typo.component';
-import { SelectOptionComponent } from '../../../../components/forms/select/select-option/select-option.component';
+import { SelectOptionComponent } from '../../../../components/forms/select/components/select-option/select-option.component';
 
 @Component({
   selector: 'app-select-page',

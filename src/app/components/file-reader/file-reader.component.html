@@ -1,0 +1,17 @@
+<div class="file-reader">
+
+    <label class="file-reader__droparea"
+           [class.file-reader__droparea--dragover]="isDragOver"
+           (dragover)="onDragOver($event)"
+           (dragleave)="onDragLeave($event)"
+           (drop)="onDrop($event)">
+    
+        <input 
+            class="file-reader__input" 
+            type="file" 
+            (change)="onFileChange($event)"
+            [multiple]="isMultiple()"/>
+    </label>
+</div>
+
+

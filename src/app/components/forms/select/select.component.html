@@ -3,7 +3,7 @@
         <label class="select__label">
             <ng-content></ng-content>
         </label>
-        <button type="button" class="select__button" (click)="ToggleList()" #selectButton>
+        <button type="button" class="select__button" (click)="toggleList()" #selectButton>
             <ng-template #defaultSelectionTemaplate>
                 @if(selectedItems().length === 1){
                     <span class="select__button__text">{{selectedItems()[0].option.label}}</span>
@@ -36,13 +36,13 @@
                         <path stroke-linecap="round" stroke-linejoin="round" d="m21 21-5.197-5.197m0 0A7.5 7.5 0 1 0 5.196 5.196a7.5 7.5 0 0 0 10.607 10.607Z" />
                     </svg>                      
                 </span>
-                <input type="text" class="select__search__input" placeholder="Search" (input)="Search($event)" [(ngModel)]="searchValue">
+                <input type="text" class="select__search__input" placeholder="Search" (input)="search($event)" [(ngModel)]="searchValue">
             </label>
         }
         <ul class="select__list">
             @if(items()){
                 @for(item of selectableItems; track item.option.value){
-                    <ml-select-option  [name]="uniqueId" [value]="item.option.value" (OnItemChange)="ItemChange($event)" [checked]="item.option.checked" [type]="multiple() ? 'checkbox' : 'radio'">
+                    <ml-select-option  [name]="uniqueId" [value]="item.option.value" (OnItemChange)="itemChange($event)" [checked]="item.option.checked" [type]="multiple() ? 'checkbox' : 'radio'">
                         {{item.option.label}}
                     </ml-select-option>
                 }

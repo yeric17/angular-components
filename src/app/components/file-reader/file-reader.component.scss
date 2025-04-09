@@ -1,0 +1,15 @@
+.file-reader__droparea{
+    border: 2px dashed #ccc;
+    border-radius: 5px;
+    padding: 1.5rem;
+    text-align: center;
+    cursor: pointer;
+    display: block;
+    &--dragover{
+        border-color: #328bf1;
+    }
+}
+
+.file-reader__input {
+  display: none;
+}
