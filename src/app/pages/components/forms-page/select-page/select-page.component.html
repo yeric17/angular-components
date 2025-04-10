@@ -14,7 +14,18 @@
     [optionTemplateRef]="optionTemplate"/>
 
     <ng-template #optionTemplate let-item>
-        {{item.option.label}} - {{item.option.value}}
+        {{item.option.label}}
     </ng-template>
+    <app-typo styleRef="heading2">Lazy loading options</app-typo>
+    <app-typo styleRef="body">To use the lazy loading options, you need to set the [lazyLoad] property to true and implement the loadOptions method.</app-typo>
+    <ml-select
+    [canSearch]="true"
+    [multiple]="true"
+    [items]="manyItems"
+    keyLabel="name"
+    keyValue="id"
+    [lazyLoadItemsNumber]="20"/>
+
+
 </div>
 

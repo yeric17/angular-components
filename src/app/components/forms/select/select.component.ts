@@ -19,6 +19,8 @@ import { FormsModule } from '@angular/forms';
 import { NgTemplateOutlet } from '@angular/common';
 import { SelectOptionComponent } from './components/select-option/select-option.component';
 
+
+
 @Component({
   selector: 'ml-select',
   standalone: true,
@@ -41,7 +43,7 @@ export class SelectComponent<TItem> implements OnChanges, OnInit {
   activeList = signal<boolean>(false);
   protected searchValue = signal<string>('');
   protected filteredItems = signal<SelectableOption<TItem>[]>([]);
-
+  protected lazyIndex = signal<number>(0);
   // #endregion
   
   // #region inputs
@@ -54,6 +56,7 @@ export class SelectComponent<TItem> implements OnChanges, OnInit {
   selectionTemplate = input<TemplateRef<any> | undefined>(undefined)
   optionTemplateRef = input<TemplateRef<any> | undefined>(undefined);
   size = input<'sm' | 'md' | 'lg'>('md')
+  lazyLoadItemsNumber = input<number|undefined>(undefined)
   // #endregion
 
   // #region outputs
@@ -70,7 +73,7 @@ export class SelectComponent<TItem> implements OnChanges, OnInit {
 
   ngOnChanges(changes: SimpleChanges): void {
     const { items } = changes;
-    if (items) {
+    if (items && !items.firstChange) {
       const currentItems = this.items()
       if (!currentItems) return;
       this.setupByItems(currentItems);
@@ -141,6 +144,9 @@ export class SelectComponent<TItem> implements OnChanges, OnInit {
   }
 
   setupByItems(items: TItem[]) {
+
+    console.log({height: this.listWrapper()?.nativeElement.offsetHeight});
+
     this.selectableItems = items
       .map<SelectableOption<TItem>>(item => {
         let option: SelectableOption<TItem> = {
@@ -164,7 +170,7 @@ export class SelectComponent<TItem> implements OnChanges, OnInit {
 
     this.setSelectedItems(selectedItems);
 
-    this.filteredItems.set([...this.selectableItems]);
+    this.updateFilteredItems();
 
     this.resetFilteredItems();
   }
@@ -187,7 +193,7 @@ export class SelectComponent<TItem> implements OnChanges, OnInit {
   }
 
   resetFilteredItems() {
-    this.filteredItems.set([...this.selectableItems]);
+    this.updateFilteredItems();
   }
 
   setActiveList(value: boolean) {
@@ -203,11 +209,51 @@ export class SelectComponent<TItem> implements OnChanges, OnInit {
     const value = (event.target as HTMLInputElement).value;
 
     this.searchValue.set(value);
+
+    this.updateFilteredItems();
     
-    this.filteredItems.set([...this.selectableItems.filter(item => 
-      item.option.label.toLowerCase().includes(value.toLowerCase())
+    // this.filteredItems.set([...this.selectableItems.filter(item => 
+    //   item.option.label.toLowerCase().includes(value.toLowerCase())
+    // )]);
+  }
+
+  updateFilteredItems(){
+    if(this.searchValue().trim() != ''){
+      this.filteredItemsWithSearch();
+    }
+    else{
+      this.filteredItems.set(this.getSelectableItems());
+    }
+  }
+
+  filteredItemsWithSearch(){
+    this.filteredItems.set([...this.getSelectableItems().filter(item =>
+      item.option.label.toLowerCase().includes(this.searchValue().toLowerCase())
     )]);
-    
+  }
+
+  getSelectableItems(){
+    let baseItems = [] as SelectableOption<TItem>[];
+
+    if(this.lazyLoadItemsNumber()){
+      baseItems = this.getLazyItemsFromArray(this.selectableItems);
+    }
+    else{
+      baseItems = this.selectableItems;
+    }
+    return baseItems;
+  }
+
+  getLazyItemsFromArray(array: SelectableOption<TItem>[]){
+    return array.slice(this.lazyIndex(), this.lazyIndex() + this.lazyLoadItemsNumber()!);
+  }
+
+  protected itemInit(idx:number){
+    if(idx >=  this.lazyLoadItemsNumber()! - 1){
+      this.lazyIndex.set(idx);
+      this.updateFilteredItems();
+      
+    }
   }
 
   private generateUniqueId(): string {

@@ -1,5 +1,5 @@
 
-import { Component, input, model, output } from '@angular/core';
+import { Component, input, model, OnInit, output } from '@angular/core';
 
 @Component({
   selector: 'ml-select-option',
@@ -8,16 +8,23 @@ import { Component, input, model, output } from '@angular/core';
   templateUrl: './select-option.component.html',
   styleUrl: './select-option.component.scss'
 })
-export class SelectOptionComponent {
+export class SelectOptionComponent implements OnInit {
   name = input.required<string>();
   type = model<'radio' | 'checkbox'>('radio');
   value = input.required<string>();
   checked = model<boolean>(false);
-  OnItemChange = output<Event>();
+  onItemChange = output<Event>();
+  onItemInit = output();
   show = model<boolean>(true);
 
+
+
+  ngOnInit(): void {
+    this.onItemInit.emit();
+  }
+
   ItemChange(event: Event) {
-    this.OnItemChange.emit(event);
+    this.onItemChange.emit(event);
   }
 
 

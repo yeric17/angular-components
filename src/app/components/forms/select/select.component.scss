@@ -10,15 +10,25 @@
     --select-height-sm: var(--form-field-height-sm);
     --select-height-lg: var(--form-field-height-lg);
 
+    --select-list-min-width: 14rem;
+    --select-list-min-width-sm: 12rem;
+    --select-list-min-width-lg: 16rem;
+
     --select-color: var(--form-field-color);
     --select-border-color: var(--form-field-border-color);
     --select-background: var(--form-field-background);
     --select-border-width: var(--form-field-border-width);
+
+    --select-list-header-background: var(--color-gray-100);
+
+    --select-list-max-height: 12rem;
 }
 
 
 .select {
     position: relative;
+    display: inline-flex;
+    
 }
 
 .select__button {
@@ -32,6 +42,7 @@
     display: grid;
     grid-template-columns: 1fr 1rem;
     align-items: center;
+    
 }
 
 .select__button__text {
@@ -66,25 +77,42 @@
     transform: scaleY(0);
     transform-origin: top;
     visibility: hidden;
-    transition: transform 0.1s ease;
+    transition: transform 0.1s cubic-bezier(0.41, 0.86, 0.51, 1);
     box-shadow: 0 0 0.5rem rgba(0, 0, 0, 0.1);
-    padding: .75rem;
+    opacity: 0;
     width: 100%;
+    min-width: var(--select-list-min-width);
     box-sizing: border-box;
     border-radius: var(--select-border-radius);
+
 }
 
 .active .select__list-wrapper {
     visibility: visible;
     transform: scaleY(1);
+    opacity: 1;
+}
+
+.select__list{
+    max-height: var(--select-list-max-height);
+    padding-inline: var(--select-padding-x);
+    padding-block: var(--select-padding-y);
+    overflow-y: auto;
 }
 
 .select__action {
     display: flex;
     flex-direction: column;
-    gap: .25rem;
+    // gap: .25rem;
 }
+.select__search-wrapper{
 
+    padding-inline: var(--select-padding-x);
+    padding-block: var(--select-padding-y);
+    background-color: var(--select-list-header-background);
+    border-top-left-radius: var(--select-border-radius);
+    border-top-right-radius: var(--select-border-radius);
+}
 .select__search {
     display: grid;
     grid-template-columns: 2rem 1fr;
@@ -92,7 +120,7 @@
     border-radius: var(--select-border-radius);
     box-sizing: border-box;
     height: var(--select-height);
-    margin-bottom: 1rem;
+    background: #fff;
 }
 
 .select__search__input {

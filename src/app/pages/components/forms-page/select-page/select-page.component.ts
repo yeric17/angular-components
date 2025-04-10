@@ -1,7 +1,8 @@
 import { Component } from '@angular/core';
 import { SelectComponent } from '../../../../components/forms/select/select.component';
 import { TypoComponent } from '../../../../components/typography/typo/typo.component';
-import { SelectOptionComponent } from '../../../../components/forms/select/components/select-option/select-option.component';
+import { getExampleModelItems } from '../../../../components/forms/select/data/select-dummy-data';
+
 
 interface Item {
   id: number;
@@ -11,7 +12,7 @@ interface Item {
 @Component({
   selector: 'app-select-page',
   standalone: true,
-  imports: [SelectComponent,TypoComponent,SelectOptionComponent],
+  imports: [SelectComponent,TypoComponent],
   templateUrl: './select-page.component.html',
   styleUrl: './select-page.component.scss'
 })
@@ -23,6 +24,8 @@ export class SelectPageComponent {
     { id: 4, name: 'Item 4' },
     { id: 5, name: 'Item 5' }
   ]
+  
+  manyItems: Item[] = getExampleModelItems(4000)
 
   itemSelect(selectedItem: Item|undefined) {
     console.log('Selected item:', selectedItem);

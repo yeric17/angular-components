@@ -30,29 +30,36 @@
     </div>
     <div class="select__list-wrapper" >
         @if(canSearch()){
-            <label class="select__search">
-                <span class="select__search__icon">
-                    <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="size-6">
-                        <path stroke-linecap="round" stroke-linejoin="round" d="m21 21-5.197-5.197m0 0A7.5 7.5 0 1 0 5.196 5.196a7.5 7.5 0 0 0 10.607 10.607Z" />
-                    </svg>                      
-                </span>
-                <input type="text" class="select__search__input" placeholder="Search" (input)="search($event)" [(ngModel)]="searchValue">
-            </label>
+            <div class="select__search-wrapper">
+                <label class="select__search">
+                    <span class="select__search__icon">
+                        <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="size-6">
+                            <path stroke-linecap="round" stroke-linejoin="round" d="m21 21-5.197-5.197m0 0A7.5 7.5 0 1 0 5.196 5.196a7.5 7.5 0 0 0 10.607 10.607Z" />
+                        </svg>                      
+                    </span>
+                    <input type="text" class="select__search__input" placeholder="Search" (input)="search($event)" [(ngModel)]="searchValue">
+                </label>
+            </div>
         }
         <ul class="select__list">
             @if(items()){
                 @for(item of filteredItems(); track item.option.value; let idx = $index){
-
-                    <ml-select-option  
-                        [name]="uniqueId"
-                        [value]="item.option.value" 
-                        (OnItemChange)="itemChange($event)" 
-                        [checked]="item.option.checked" 
-                        [type]="multiple() ? 'checkbox' : 'radio'">
-                        <ng-container [ngTemplateOutlet]="optionTemplateRef() ?? defaultOptionTemplate"
-                                [ngTemplateOutletContext]="{ $implicit: item, idx: idx }"></ng-container>
-
-                    </ml-select-option>
+                    @defer(on viewport){
+                        <ml-select-option  
+                            [name]="uniqueId"
+                            [value]="item.option.value" 
+                            (onItemChange)="itemChange($event)" 
+                            [checked]="item.option.checked" 
+                            
+                            [type]="multiple() ? 'checkbox' : 'radio'">
+                            <ng-container [ngTemplateOutlet]="optionTemplateRef() ?? defaultOptionTemplate"
+                                    [ngTemplateOutletContext]="{ $implicit: item, idx: idx }"></ng-container>
+    
+                        </ml-select-option>
+                    }
+                    @placeholder {
+                        <span>Loading...</span>
+                    }
                 }
                 <ng-template let-item #defaultOptionTemplate>
                         {{item.option.label}}
