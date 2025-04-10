@@ -1,4 +1,4 @@
-<div class="select {{size()}}" [class.active]="activeList()"  #listWrapper>
+<div class="select {{size()}}" [class.active]="activeList()" [class.full-width]="fullWidth()"   #selectContainer>
     <div class="select__action">
         <label class="select__label">
             <ng-content></ng-content>
@@ -28,7 +28,7 @@
             </span>
         </button>
     </div>
-    <div class="select__list-wrapper" >
+    <div class="select__list-wrapper" #listWrapper  [class.align-top]="verticalAlign() == 'top'" [class.align-right]="horizontalAlign() == 'right'">
         @if(canSearch()){
             <div class="select__search-wrapper">
                 <label class="select__search">

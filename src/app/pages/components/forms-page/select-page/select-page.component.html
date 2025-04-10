@@ -4,19 +4,23 @@
     <app-typo styleRef="body">The select component is a dropdown list that allows users to select one or more items from a list of options.</app-typo>
     <app-typo styleRef="heading2">Setup</app-typo>
     <app-typo styleRef="body">To use the select component, you need to import the SelectComponent.</app-typo>
-    <ml-select 
-    [canSearch]="true"
-    [multiple]="true" 
-    [items]="items"
-    keyLabel="name"
-    keyValue="id"
-    (onSelectItem)="itemSelect($event)"
-    [optionTemplateRef]="optionTemplate"/>
+    <div class="align-right">
 
-    <ng-template #optionTemplate let-item>
-        {{item.option.label}}
-    </ng-template>
-    <app-typo styleRef="heading2">Lazy loading options</app-typo>
+        <ml-select 
+        [canSearch]="true"
+        [multiple]="true" 
+        [items]="items"
+        keyLabel="name"
+        keyValue="id"
+        (onSelectItem)="itemSelect($event)"
+        [optionTemplateRef]="optionTemplate"
+        [fullWidth]="false"/>
+    
+        <ng-template #optionTemplate let-item>
+            {{item.option.label}}
+        </ng-template>
+    </div>
+    <!-- <app-typo styleRef="heading2">Lazy loading options</app-typo>
     <app-typo styleRef="body">To use the lazy loading options, you need to set the [lazyLoad] property to true and implement the loadOptions method.</app-typo>
     <ml-select
     [canSearch]="true"
@@ -24,7 +28,7 @@
     [items]="manyItems"
     keyLabel="name"
     keyValue="id"
-    [lazyLoadItemsNumber]="20"/>
+    [lazyLoadItemsNumber]="20"/> -->
 
 
 </div>

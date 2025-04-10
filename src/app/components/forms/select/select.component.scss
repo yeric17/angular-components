@@ -22,13 +22,19 @@
     --select-list-header-background: var(--color-gray-100);
 
     --select-list-max-height: 12rem;
+    height: auto;
+    display: inline-flex;
+}
+
+:host:has(.full-width) {
+    width: 100%;
 }
 
 
 .select {
     position: relative;
     display: inline-flex;
-    
+    width: 100%;
 }
 
 .select__button {
@@ -87,6 +93,17 @@
 
 }
 
+.select__list-wrapper.align-top{
+    bottom: calc(100% + 4px);
+    top: initial;
+    transform-origin: bottom;
+}
+
+.select__list-wrapper.align-right{
+    left: initial;
+    right: 0;
+}
+
 .active .select__list-wrapper {
     visibility: visible;
     transform: scaleY(1);
@@ -94,15 +111,16 @@
 }
 
 .select__list{
-    max-height: var(--select-list-max-height);
     padding-inline: var(--select-padding-x);
     padding-block: var(--select-padding-y);
     overflow-y: auto;
+    max-height: var(--select-list-max-height);
 }
 
 .select__action {
     display: flex;
     flex-direction: column;
+    width: 100%;
     // gap: .25rem;
 }
 .select__search-wrapper{

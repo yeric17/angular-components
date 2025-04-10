@@ -19,7 +19,7 @@ import { FormsModule } from '@angular/forms';
 import { NgTemplateOutlet } from '@angular/common';
 import { SelectOptionComponent } from './components/select-option/select-option.component';
 
-
+const OFFSET_BOUNDING = 10;
 
 @Component({
   selector: 'ml-select',
@@ -31,6 +31,7 @@ import { SelectOptionComponent } from './components/select-option/select-option.
 })
 export class SelectComponent<TItem> implements OnChanges, OnInit {
   // #region component references
+  selectContainer = viewChild('selectContainer', { read: ElementRef })
   listWrapper = viewChild('listWrapper', { read: ElementRef })
   // #endregion
 
@@ -44,6 +45,14 @@ export class SelectComponent<TItem> implements OnChanges, OnInit {
   protected searchValue = signal<string>('');
   protected filteredItems = signal<SelectableOption<TItem>[]>([]);
   protected lazyIndex = signal<number>(0);
+  protected verticalAlign = signal<'top' | 'bottom'>('bottom');
+  protected horizontalAlign = signal<'left' | 'right'>('left');
+
+
+  selectListMaxHeightPx: number = 0;
+  formFieldPaddingXPx: number = 0;
+  selectHeightPx: number = 0;
+  selectListMinWidthPx: number = 0;
   // #endregion
   
   // #region inputs
@@ -57,6 +66,7 @@ export class SelectComponent<TItem> implements OnChanges, OnInit {
   optionTemplateRef = input<TemplateRef<any> | undefined>(undefined);
   size = input<'sm' | 'md' | 'lg'>('md')
   lazyLoadItemsNumber = input<number|undefined>(undefined)
+  fullWidth = input<boolean>(false)
   // #endregion
 
   // #region outputs
@@ -69,6 +79,50 @@ export class SelectComponent<TItem> implements OnChanges, OnInit {
   // #region lifecycle
   ngOnInit(): void {
     this.initialSetup();
+
+    
+    if (this.listWrapper()) {
+      const computedStyle = window.getComputedStyle(this.listWrapper()?.nativeElement);
+      const styleVal = computedStyle.getPropertyValue('--select-list-max-height');
+      const paddingXVal = computedStyle.getPropertyValue('--form-field-padding-x');
+      const headerHeight = computedStyle.getPropertyValue('--select-height');
+      const widthVal = computedStyle.getPropertyValue('--select-list-min-width');
+      
+      
+      const rootSize = parseFloat(window.getComputedStyle(document.documentElement).fontSize);
+
+      this.selectListMaxHeightPx = styleVal.endsWith('rem')
+        ? parseFloat(styleVal.replace(/rem|em|px|%/, '')) * rootSize
+        : parseFloat(styleVal.replace(/rem|em|px|%/, ''));
+
+      this.formFieldPaddingXPx = paddingXVal.endsWith('rem')
+        ? parseFloat(paddingXVal.replace(/rem|em|px|%/, '')) * rootSize
+        : parseFloat(paddingXVal.replace(/rem|em|px|%/, ''));
+
+      this.selectHeightPx = headerHeight.endsWith('rem')
+        ? parseFloat(headerHeight.replace(/rem|em|px|%/, '')) * rootSize
+        : parseFloat(headerHeight.replace(/rem|em|px|%/, ''));
+
+      this.selectListMinWidthPx = widthVal.endsWith('rem')
+        ? parseFloat(widthVal.replace(/rem|em|px|%/, '')) * rootSize
+        : parseFloat(widthVal.replace(/rem|em|px|%/, ''));
+        
+
+    }
+
+    const interesectionOptions = {
+      root: document.body,
+      rootMargin: '0px',
+      threshold: 0.1
+    }
+
+    const intersectionObserver = new IntersectionObserver((entries) => {
+      entries.forEach(entry => {
+        if (entry.isIntersecting) {
+          console.log({entry})
+        }
+      });
+    }, interesectionOptions);
   }
 
   ngOnChanges(changes: SimpleChanges): void {
@@ -86,7 +140,7 @@ export class SelectComponent<TItem> implements OnChanges, OnInit {
   onDocumentMouseUp(event: MouseEvent): void {
     if (!event.target) return;
     const target = event.target as HTMLElement;
-    if (!this.listWrapper()?.nativeElement.contains(target) && this.activeList()) {
+    if (!this.selectContainer()?.nativeElement.contains(target) && this.activeList()) {
       this.setActiveList(false);
     }
   }
@@ -145,7 +199,10 @@ export class SelectComponent<TItem> implements OnChanges, OnInit {
 
   setupByItems(items: TItem[]) {
 
-    console.log({height: this.listWrapper()?.nativeElement.offsetHeight});
+    
+
+    
+    
 
     this.selectableItems = items
       .map<SelectableOption<TItem>>(item => {
@@ -202,7 +259,38 @@ export class SelectComponent<TItem> implements OnChanges, OnInit {
       this.resetFilteredItems();
     }
 
+    if(value){
+      this.updateListPosition();
+    }
+
     this.activeList.set(value);
+  }
+
+  updateListPosition(){
+    const boundingRect = this.selectContainer()?.nativeElement.getBoundingClientRect();
+    const viewportHeight = window.innerHeight;
+    const viewportWidth = window.innerWidth;
+
+    const distanceToBottom = viewportHeight - boundingRect.bottom;
+    const distanceToRight = viewportWidth - boundingRect.right;
+    const distanceToLeft = boundingRect.left;
+
+    let listHeight = this.selectListMaxHeightPx + (this.formFieldPaddingXPx * 2) + this.selectHeightPx + OFFSET_BOUNDING;
+
+    const selectListWidthPx = this.selectContainer()?.nativeElement.getBoundingClientRect().width;
+
+    const availableRightSpace = viewportWidth - (distanceToLeft + this.selectListMinWidthPx);
+
+    if(availableRightSpace < 0 && (distanceToLeft + selectListWidthPx) > this.selectListMinWidthPx){
+      this.horizontalAlign.set('right')
+    }
+
+    if((distanceToBottom - listHeight) < 0) {
+      this.verticalAlign.set('top');
+    }
+    else {
+      this.verticalAlign.set('bottom');
+    }
   }
 
   search(event: Event) {
