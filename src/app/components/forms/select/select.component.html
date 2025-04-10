@@ -41,14 +41,14 @@
                 </label>
             </div>
         }
-        <ul class="select__list">
+        <ul class="select__list" #selectList>
             @if(items()){
                 @for(item of filteredItems(); track item.option.value; let idx = $index){
                     @defer(on viewport){
                         <ml-select-option  
                             [name]="uniqueId"
                             [value]="item.option.value" 
-                            (onItemChange)="itemChange($event)" 
+                            (onItemChange)="itemChange($event)"
                             [checked]="item.option.checked" 
                             
                             [type]="multiple() ? 'checkbox' : 'radio'">
@@ -58,7 +58,7 @@
                         </ml-select-option>
                     }
                     @placeholder {
-                        <span>Loading...</span>
+                        <span></span>
                     }
                 }
                 <ng-template let-item #defaultOptionTemplate>

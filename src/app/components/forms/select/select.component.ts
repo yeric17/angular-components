@@ -33,6 +33,7 @@ export class SelectComponent<TItem> implements OnChanges, OnInit {
   // #region component references
   selectContainer = viewChild('selectContainer', { read: ElementRef })
   listWrapper = viewChild('listWrapper', { read: ElementRef })
+  listElement = viewChild('selectList', { read: ElementRef })
   // #endregion
 
   // #region properties
@@ -44,7 +45,7 @@ export class SelectComponent<TItem> implements OnChanges, OnInit {
   activeList = signal<boolean>(false);
   protected searchValue = signal<string>('');
   protected filteredItems = signal<SelectableOption<TItem>[]>([]);
-  protected lazyIndex = signal<number>(0);
+  protected lazyLastIndex = signal<number>(0);
   protected verticalAlign = signal<'top' | 'bottom'>('bottom');
   protected horizontalAlign = signal<'left' | 'right'>('left');
 
@@ -78,12 +79,34 @@ export class SelectComponent<TItem> implements OnChanges, OnInit {
 
   // #region lifecycle
   ngOnInit(): void {
+    this.lazyLastIndex.set(this.lazyLoadItemsNumber() ? this.lazyLoadItemsNumber()! - 1 : 0);
+
     this.initialSetup();
+
+
+    console.log({lazyLoadItemsNumber: this.lazyLoadItemsNumber(), lazyLastIndex: this.lazyLastIndex()}) 
+
+    this.listElement()?.nativeElement.addEventListener('scroll', (event: Event) => {
+
+      const target = event.target as HTMLElement;
+      const scrollHeight = target.scrollHeight;
+      const scrollTop = target.scrollTop;
+      const clientHeight = target.clientHeight;
+
+      const scrollBottom = scrollHeight - scrollTop - clientHeight;
+
+      if(scrollBottom < 12 && this.lazyLoadItemsNumber()){
+        
+        this.lazyLastIndex.set(this.lazyLastIndex() + this.lazyLoadItemsNumber()!);
+        this.updateFilteredItems()
+      }
+
+    });
 
     
     if (this.listWrapper()) {
       const computedStyle = window.getComputedStyle(this.listWrapper()?.nativeElement);
-      const styleVal = computedStyle.getPropertyValue('--select-list-max-height');
+      const styleVal = computedStyle.getPropertyValue('--select-list-height');
       const paddingXVal = computedStyle.getPropertyValue('--form-field-padding-x');
       const headerHeight = computedStyle.getPropertyValue('--select-height');
       const widthVal = computedStyle.getPropertyValue('--select-list-min-width');
@@ -110,19 +133,7 @@ export class SelectComponent<TItem> implements OnChanges, OnInit {
 
     }
 
-    const interesectionOptions = {
-      root: document.body,
-      rootMargin: '0px',
-      threshold: 0.1
-    }
 
-    const intersectionObserver = new IntersectionObserver((entries) => {
-      entries.forEach(entry => {
-        if (entry.isIntersecting) {
-          console.log({entry})
-        }
-      });
-    }, interesectionOptions);
   }
 
   ngOnChanges(changes: SimpleChanges): void {
@@ -144,6 +155,7 @@ export class SelectComponent<TItem> implements OnChanges, OnInit {
       this.setActiveList(false);
     }
   }
+
 
   itemChange(event: Event) {
 
@@ -182,6 +194,8 @@ export class SelectComponent<TItem> implements OnChanges, OnInit {
   // #endregion
 
   // #region methods
+
+
   initialSetup() {
 
     const items = this.items();
@@ -198,11 +212,6 @@ export class SelectComponent<TItem> implements OnChanges, OnInit {
   }
 
   setupByItems(items: TItem[]) {
-
-    
-
-    
-    
 
     this.selectableItems = items
       .map<SelectableOption<TItem>>(item => {
@@ -250,6 +259,9 @@ export class SelectComponent<TItem> implements OnChanges, OnInit {
   }
 
   resetFilteredItems() {
+    this.lazyLastIndex.set(this.lazyLoadItemsNumber() ? this.lazyLoadItemsNumber()! - 1 : 0);
+    const listElement = this.listElement()?.nativeElement as HTMLElement;
+    listElement.scrollTop = 0;
     this.updateFilteredItems();
   }
 
@@ -272,7 +284,7 @@ export class SelectComponent<TItem> implements OnChanges, OnInit {
     const viewportWidth = window.innerWidth;
 
     const distanceToBottom = viewportHeight - boundingRect.bottom;
-    const distanceToRight = viewportWidth - boundingRect.right;
+    // const distanceToRight = viewportWidth - boundingRect.right;
     const distanceToLeft = boundingRect.left;
 
     let listHeight = this.selectListMaxHeightPx + (this.formFieldPaddingXPx * 2) + this.selectHeightPx + OFFSET_BOUNDING;
@@ -298,51 +310,42 @@ export class SelectComponent<TItem> implements OnChanges, OnInit {
 
     this.searchValue.set(value);
 
-    this.updateFilteredItems();
     
-    // this.filteredItems.set([...this.selectableItems.filter(item => 
-    //   item.option.label.toLowerCase().includes(value.toLowerCase())
-    // )]);
+    this.lazyLastIndex.set(this.lazyLoadItemsNumber() ? this.lazyLoadItemsNumber()! - 1 : 0);
+    
+
+    this.updateFilteredItems();
+
   }
 
   updateFilteredItems(){
     if(this.searchValue().trim() != ''){
       this.filteredItemsWithSearch();
     }
-    else{
-      this.filteredItems.set(this.getSelectableItems());
+    else if(this.lazyLoadItemsNumber()){
+      this.filteredItems.set(this.getLazyItemsFromArray(this.selectableItems));
+    } else {
+      this.filteredItems.set(this.selectableItems);
     }
   }
 
   filteredItemsWithSearch(){
-    this.filteredItems.set([...this.getSelectableItems().filter(item =>
+    const items = this.selectableItems.filter(item =>
       item.option.label.toLowerCase().includes(this.searchValue().toLowerCase())
-    )]);
-  }
-
-  getSelectableItems(){
-    let baseItems = [] as SelectableOption<TItem>[];
-
+    );
     if(this.lazyLoadItemsNumber()){
-      baseItems = this.getLazyItemsFromArray(this.selectableItems);
+      this.filteredItems.set(this.getLazyItemsFromArray(items));
+    } else {
+      this.filteredItems.set(items);
     }
-    else{
-      baseItems = this.selectableItems;
-    }
-    return baseItems;
   }
+
 
   getLazyItemsFromArray(array: SelectableOption<TItem>[]){
-    return array.slice(this.lazyIndex(), this.lazyIndex() + this.lazyLoadItemsNumber()!);
+    return array.slice(0, this.lazyLastIndex() + 1);
   }
 
-  protected itemInit(idx:number){
-    if(idx >=  this.lazyLoadItemsNumber()! - 1){
-      this.lazyIndex.set(idx);
-      this.updateFilteredItems();
-      
-    }
-  }
+
 
   private generateUniqueId(): string {
     const chars = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789';

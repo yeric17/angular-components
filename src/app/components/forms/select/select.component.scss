@@ -21,7 +21,7 @@
 
     --select-list-header-background: var(--color-gray-100);
 
-    --select-list-max-height: 12rem;
+    --select-list-height: 12rem;
     height: auto;
     display: inline-flex;
 }
@@ -114,7 +114,8 @@
     padding-inline: var(--select-padding-x);
     padding-block: var(--select-padding-y);
     overflow-y: auto;
-    max-height: var(--select-list-max-height);
+    overflow-x: hidden;
+    height: var(--select-list-height);
 }
 
 .select__action {
