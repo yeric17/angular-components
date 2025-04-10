@@ -57,7 +57,7 @@ export class SelectComponent<TItem> implements OnChanges, OnInit {
   // #endregion
   
   // #region inputs
-  preSelectedItems = input<TItem[]>([])
+  preSelectedItems = input<any[]>([])
   keyLabel = input<string>('label')
   keyValue = input<string>('value')
   placeholder = input<string>('Choose an item')
