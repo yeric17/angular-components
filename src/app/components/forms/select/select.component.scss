@@ -47,8 +47,9 @@
     padding-block: var(--select-padding-y);
     height: var(--select-height);
     display: grid;
-    grid-template-columns: 1fr 1rem;
+    grid-template-columns: 1fr auto;
     align-items: center;
+    gap: .3rem;
 }
 
 .select__button__text {
@@ -66,8 +67,11 @@
 }
 
 .select__button__icon svg {
-    width: 1em;
-    height: 1em;
+    width: var(--icon-size);
+    height: var(--icon-size);
+    padding: var(--icon-padding);
+    aspect-ratio: 1/1;
+    width: 100%;
 }
 
 .select__button__icon.active {
@@ -195,5 +199,7 @@
     padding-inline: var(--select-padding-x-lg);
     padding-block: var(--select-padding-y-lg);
 }
+
+
 
 

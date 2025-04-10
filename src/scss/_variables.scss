@@ -1,0 +1,8 @@
+:root{
+    --icon-size: 1rem;
+    --icon-size-sm: .8rem;
+    --icon-size-lg: 1.2rem;
+    --icon-padding: calc(var(--icon-size) * 0.125);
+    --icon-padding-sm: calc(var(--icon-size-sm) * 0.125);
+    --icon-padding-lg: calc(var(--icon-size-lg) * 0.125)
+}
