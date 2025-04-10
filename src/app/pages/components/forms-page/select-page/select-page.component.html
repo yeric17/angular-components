@@ -1,17 +1,12 @@
-
 <div class="page">
     <app-typo styleRef="heading1">Select Component</app-typo>
     <app-typo styleRef="body">The select component is a dropdown list that allows users to select one or more items from a list of options.</app-typo>
+    
     <app-typo styleRef="heading2">Setup</app-typo>
-    <app-typo styleRef="body">To use the select component, you need to import the SelectComponent.</app-typo>
-    <pre>
-        <code lang="ts">
-import SelectComponent from 'minimal-components'
-        </code>
-    </pre>
-    <br/>
+    <app-typo styleRef="body">To use the select component, you need to import the SelectComponent. It handles both single and multiple selections with support for custom templates and lazy loading.</app-typo>
 
     <app-typo styleRef="heading2">Single Select</app-typo>
+    <app-typo styleRef="body">This configuration allows the user to select a single item from the dropdown list. When an item is selected, the dropdown automatically closes.</app-typo>
     <ml-select 
     [items]="items"
     keyLabel="name"
@@ -20,6 +15,7 @@ import SelectComponent from 'minimal-components'
     [optionTemplateRef]="optionTemplate"/>
 
     <app-typo styleRef="heading2">Multiple Select</app-typo>
+    <app-typo styleRef="body">This configuration enables selecting multiple items from the dropdown list. The dropdown remains open after a selection to allow additional selections.</app-typo>
     <ml-select 
     [items]="items"
     [multiple]="true"
@@ -30,6 +26,7 @@ import SelectComponent from 'minimal-components'
     
 
     <app-typo styleRef="heading2">Search field</app-typo>
+    <app-typo styleRef="body">Enables a search input that filters options as you type. This is especially useful for large lists of items, making it easier to find specific options.</app-typo>
     <ml-select 
     [items]="items"
     [canSearch]="true"
@@ -40,6 +37,7 @@ import SelectComponent from 'minimal-components'
     [optionTemplateRef]="optionTemplate"/>
 
     <app-typo styleRef="heading2">Full Width</app-typo>
+    <app-typo styleRef="body">Sets the select component to expand to the full width of its container, providing a more flexible layout option that adapts to various screen sizes.</app-typo>
     <ml-select 
     [items]="items"
     [canSearch]="true"
@@ -47,8 +45,7 @@ import SelectComponent from 'minimal-components'
     [fullWidth]="true"
     keyLabel="name"
     keyValue="id"
-    (onSelectItem)="itemSelect($event)"
-    [optionTemplateRef]="optionTemplate"/>
+    (onSelectItem)="itemSelect($event)"/>
         
     <app-typo styleRef="heading2">Lazy loading options</app-typo>
 
@@ -63,7 +60,7 @@ import SelectComponent from 'minimal-components'
 
     <app-typo styleRef="heading2">Custom option template</app-typo>
 
-    
+    <app-typo styleRef="body">For customizing the appearance of options in the select component, you can use a custom option template.</app-typo>
     <ml-select
     [canSearch]="true"
     [multiple]="true"
@@ -80,7 +77,10 @@ import SelectComponent from 'minimal-components'
 
     <app-typo styleRef="heading2">Custom selection template</app-typo>
 
-    
+    <app-typo styleRef="body">
+        
+        This template allows you to customize how selected items are displayed in the select component, providing a better user experience. 
+    </app-typo>
     <ml-select
     [canSearch]="true"
     [multiple]="true"
