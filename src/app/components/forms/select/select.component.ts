@@ -3,6 +3,7 @@ import {
   Component, 
   contentChildren, 
   ElementRef, 
+  forwardRef, 
   HostListener, 
   input, 
   model, 
@@ -15,11 +16,17 @@ import {
   viewChild
 } from '@angular/core';
 import { BaseOption, SelectableOption } from './models/select.models';
-import { FormsModule } from '@angular/forms';
+import { ControlValueAccessor, FormsModule, NG_VALUE_ACCESSOR } from '@angular/forms';
 import { NgTemplateOutlet } from '@angular/common';
 import { SelectOptionComponent } from './components/select-option/select-option.component';
 
 const OFFSET_BOUNDING = 10;
+
+const VALUE_ACCESOR = {
+  provide: NG_VALUE_ACCESSOR,
+  useExisting: forwardRef(() => SelectComponent),
+  multi: true
+}
 
 @Component({
   selector: 'ml-select',
@@ -27,9 +34,11 @@ const OFFSET_BOUNDING = 10;
   imports: [NgTemplateOutlet, FormsModule, SelectOptionComponent],
   templateUrl: './select.component.html',
   styleUrl: './select.component.scss',
-  changeDetection: ChangeDetectionStrategy.OnPush
+  changeDetection: ChangeDetectionStrategy.OnPush,
+  providers: [VALUE_ACCESOR]
 })
-export class SelectComponent<TItem> implements OnChanges, OnInit {
+export class SelectComponent<TItem> implements OnChanges, OnInit, ControlValueAccessor {
+
   // #region component references
   selectContainer = viewChild('selectContainer', { read: ElementRef })
   listWrapper = viewChild('listWrapper', { read: ElementRef })
@@ -48,7 +57,7 @@ export class SelectComponent<TItem> implements OnChanges, OnInit {
   protected lazyLastIndex = signal<number>(0);
   protected verticalAlign = signal<'top' | 'bottom'>('bottom');
   protected horizontalAlign = signal<'left' | 'right'>('left');
-
+  protected isDisabled = signal<boolean>(false)
 
   selectListMaxHeightPx: number = 0;
   formFieldPaddingXPx: number = 0;
@@ -184,12 +193,15 @@ export class SelectComponent<TItem> implements OnChanges, OnInit {
 
     this.onSelectItems.emit(originItems);
     this.onSelectItem.emit(originItems[0]);
-
+    
+    this.onChange(originItems)
 
 
     if (!this.multiple()) {
       this.setActiveList(false);
     }
+
+    
   }
   // #endregion
 
@@ -356,5 +368,22 @@ export class SelectComponent<TItem> implements OnChanges, OnInit {
     }
     return result;
   }
+  // #endregion
+
+  // #region control value accessor methods
+  writeValue(obj: TItem[]|TItem): void {
+    this.onChange(obj);
+  }
+  registerOnChange(fn: any): void {
+    this.onChange = fn;
+  }
+  registerOnTouched(fn: any): void {
+    this.onTouched = fn;
+  }
+  setDisabledState?(isDisabled: boolean): void {
+    this.isDisabled.set(isDisabled)
+  }
+  onChange = (value: any) => { };
+  onTouched = () => { };
   // #endregion
 }

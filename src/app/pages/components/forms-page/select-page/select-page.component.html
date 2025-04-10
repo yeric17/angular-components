@@ -4,32 +4,109 @@
     <app-typo styleRef="body">The select component is a dropdown list that allows users to select one or more items from a list of options.</app-typo>
     <app-typo styleRef="heading2">Setup</app-typo>
     <app-typo styleRef="body">To use the select component, you need to import the SelectComponent.</app-typo>
-    <div class="align-right">
+    <pre>
+        <code lang="ts">
+import SelectComponent from 'minimal-components'
+        </code>
+    </pre>
+    <br/>
 
-        <ml-select 
-        [canSearch]="true"
-        [multiple]="true" 
-        [items]="items"
-        keyLabel="name"
-        keyValue="id"
-        (onSelectItem)="itemSelect($event)"
-        [optionTemplateRef]="optionTemplate"
-        [fullWidth]="false"/>
+    <app-typo styleRef="heading2">Single Select</app-typo>
+    <ml-select 
+    [items]="items"
+    keyLabel="name"
+    keyValue="id"
+    (onSelectItem)="itemSelect($event)"
+    [optionTemplateRef]="optionTemplate"/>
+
+    <app-typo styleRef="heading2">Multiple Select</app-typo>
+    <ml-select 
+    [items]="items"
+    [multiple]="true"
+    keyLabel="name"
+    keyValue="id"
+    (onSelectItem)="itemSelect($event)"
+    [optionTemplateRef]="optionTemplate"/>
     
-        <ng-template #optionTemplate let-item>
-            {{item.option.label}}
-        </ng-template>
-    </div>
+
+    <app-typo styleRef="heading2">Search field</app-typo>
+    <ml-select 
+    [items]="items"
+    [canSearch]="true"
+    [multiple]="true"
+    keyLabel="name"
+    keyValue="id"
+    (onSelectItem)="itemSelect($event)"
+    [optionTemplateRef]="optionTemplate"/>
+
+    <app-typo styleRef="heading2">Full Width</app-typo>
+    <ml-select 
+    [items]="items"
+    [canSearch]="true"
+    [multiple]="true"
+    [fullWidth]="true"
+    keyLabel="name"
+    keyValue="id"
+    (onSelectItem)="itemSelect($event)"
+    [optionTemplateRef]="optionTemplate"/>
+        
     <app-typo styleRef="heading2">Lazy loading options</app-typo>
-    <app-typo styleRef="body">To use the lazy loading options, you need to set the [lazyLoad] property to true and implement the loadOptions method.</app-typo>
+
+    <app-typo styleRef="body">To use the lazy loading options, you need to set the [lazyLoadItemsNumber] to a number that defines how many items to load at once.</app-typo>
     <ml-select
     [canSearch]="true"
-    [multiple]="false"
+    [multiple]="true"
     [items]="manyItems"
     keyLabel="name"
     keyValue="id"
     [lazyLoadItemsNumber]="20"/>
 
+    <app-typo styleRef="heading2">Custom option template</app-typo>
+
+    
+    <ml-select
+    [canSearch]="true"
+    [multiple]="true"
+    [items]="itemsWithImage"
+    keyLabel="name"
+    keyValue="id"
+    [lazyLoadItemsNumber]="20"
+    [optionTemplateRef]="optionTemplate"/>
+        
+    <ng-template #optionTemplate let-item>
+        <img src="{{item.originItem.img}}" class="select__option__img">
+        <span>{{item.option.label}}</span>
+    </ng-template>
+
+    <app-typo styleRef="heading2">Custom selection template</app-typo>
+
+    
+    <ml-select
+    [canSearch]="true"
+    [multiple]="true"
+    [items]="itemsWithImage"
+    keyLabel="name"
+    keyValue="id"
+    [lazyLoadItemsNumber]="20"
+    [optionTemplateRef]="optionTemplate2"
+    [selectionTemplate]="selectionTemplate"/>
+        
+    <ng-template #optionTemplate2 let-item>
+        <img src="{{item.originItem.img}}" class="select__option__img">
+        <span>{{item.option.label}}</span>
+    </ng-template>
+
+    <ng-template #selectionTemplate let-selectedItems>
+        <div class="selection-container">
+            @if(selectedItems.length > 0){
+                <img src="{{selectedItems[0].originItem.img}}" class="select__option__img" />
+                <span class="select__option__label">{{selectedItems[0].option.label}}</span>
+            }
+            @else {
+                <span >No items selected</span>
+            }
+        </div>
+    </ng-template>
 
 </div>
 

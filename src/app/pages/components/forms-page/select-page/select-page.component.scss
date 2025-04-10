@@ -2,3 +2,20 @@
     display: flex;
     justify-content: flex-end;
 }
+
+.select__option__img{
+    width: 1.5rem;
+    aspect-ratio: 1/1;
+}
+.select__option__label{
+    white-space: nowrap;
+    display: inline-flex;
+    height: 100%;
+    align-items: center;
+
+}
+.selection-container{
+    display: flex;
+    align-items: center;
+    gap: .5rem
+}
