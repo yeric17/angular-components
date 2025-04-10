@@ -77,6 +77,8 @@ export class SelectComponent<TItem> implements OnChanges, OnInit, ControlValueAc
   size = input<'sm' | 'md' | 'lg'>('md')
   lazyLoadItemsNumber = input<number|undefined>(undefined)
   fullWidth = input<boolean>(false)
+  min = input<number|undefined>(undefined)
+  max = input<number|undefined>(undefined)
   // #endregion
 
   // #region outputs
@@ -168,10 +170,18 @@ export class SelectComponent<TItem> implements OnChanges, OnInit, ControlValueAc
 
   itemChange(event: Event) {
 
+
+
     const target = event.target as HTMLInputElement;
     const value = target.value;
 
     const checked = target.checked;
+
+    if(this.max() && checked && this.selectedItems().length + 1 > this.max()!){
+      target.checked = false;
+      return;
+    }
+
     if (!this.multiple()) {
       for (const item of this.selectableItems) {
         item.option.checked = item.option.value == value;
@@ -267,6 +277,7 @@ export class SelectComponent<TItem> implements OnChanges, OnInit, ControlValueAc
   }
 
   toggleList() {
+    this.onTouched()
     this.setActiveList(!this.activeList());
   }
 
@@ -371,7 +382,7 @@ export class SelectComponent<TItem> implements OnChanges, OnInit, ControlValueAc
   // #endregion
 
   // #region control value accessor methods
-  writeValue(obj: TItem[]|TItem): void {
+  writeValue(obj: TItem[]): void {
     this.onChange(obj);
   }
   registerOnChange(fn: any): void {
@@ -383,7 +394,7 @@ export class SelectComponent<TItem> implements OnChanges, OnInit, ControlValueAc
   setDisabledState?(isDisabled: boolean): void {
     this.isDisabled.set(isDisabled)
   }
-  onChange = (value: any) => { };
+  onChange = (value: TItem[]) => { };
   onTouched = () => { };
   // #endregion
 }
