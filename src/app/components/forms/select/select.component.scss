@@ -201,5 +201,25 @@
 }
 
 
+//loader
 
+.loader {
+    --size: 1rem;
+    border: calc(var(--size) / 9) solid var(--color-gray-200);
+    border-left-color: var(--color-blue-500);
+    border-radius: 50%;
+    width: var(--size);
+    height: var(--size);
+    animation: spin89345 1s linear infinite;
+  }
+  
+@keyframes spin89345 {
+0% {
+    transform: rotate(0deg);
+}
+
+100% {
+    transform: rotate(360deg);
+}
+}
 

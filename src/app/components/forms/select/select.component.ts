@@ -96,6 +96,7 @@ export class SelectComponent<TItem> implements OnChanges, OnInit, ControlValueAc
   fullWidth = input<boolean>(false)
   min = input<number|undefined>(undefined)
   max = input<number|undefined>(undefined)
+  isLoading = input<boolean>(false)
 
   templates = contentChildren(TemplateRef<any>, { descendants: false })
   // #endregion
@@ -311,7 +312,7 @@ export class SelectComponent<TItem> implements OnChanges, OnInit, ControlValueAc
   }
 
   toggleList() {
-
+    if(this.isLoading()) return;
     this.setActiveList(!this.activeList());
   }
 
@@ -345,7 +346,6 @@ export class SelectComponent<TItem> implements OnChanges, OnInit, ControlValueAc
     const viewportWidth = window.innerWidth;
 
     const distanceToBottom = viewportHeight - boundingRect.bottom;
-    // const distanceToRight = viewportWidth - boundingRect.right;
     const distanceToLeft = boundingRect.left;
 
     let listHeight = this.selectListMaxHeightPx + (this.formFieldPaddingXPx * 2) + this.selectHeightPx + OFFSET_BOUNDING;

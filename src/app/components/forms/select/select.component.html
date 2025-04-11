@@ -21,11 +21,17 @@
             <ng-container [ngTemplateOutlet]="selectionTemplate() || defaultSelectionTemaplate"
                            [ngTemplateOutletContext]="{ $implicit: selectedItems() }">
             </ng-container>
-            <span class="select__button__icon" [class.active]="activeList()">
-                <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor">
-                    <path stroke-linecap="round" stroke-linejoin="round" d="m19.5 8.25-7.5 7.5-7.5-7.5" />
-                </svg>                  
-            </span>
+            @if(isLoading()){
+                
+                <div class="loader"></div>
+            }
+            @else {
+                <span class="select__button__icon" [class.active]="activeList()">
+                    <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor">
+                        <path stroke-linecap="round" stroke-linejoin="round" d="m19.5 8.25-7.5 7.5-7.5-7.5" />
+                    </svg>                  
+                </span>
+            }
         </button>
     </div>
     <div class="select__list-wrapper" #listWrapper  [class.align-top]="verticalAlign() == 'top'" [class.align-right]="horizontalAlign() == 'right'">

@@ -131,5 +131,33 @@
         </div>
     </form>
 
+    <app-typo styleRef="heading2">Loading state</app-typo>
+    <app-typo styleRef="body">Indicates whether the select component is currently loading items.</app-typo>
+    <ml-select
+    [items]="items"
+    [canSearch]="true"
+    [multiple]="true"
+    keyLabel="name"
+    keyValue="id"
+    [isLoading]="true"
+    (onSelectItem)="itemSelect($event)"
+    [lazyLoadItemsNumber]="20">
+        <ng-template #optionTemplate let-item>
+            <img src="{{item.originItem.img}}" class="select__option__img">
+            <span>{{item.option.label}}</span>
+        </ng-template>
+        <ng-template #selectionTemplate let-selectedItems>
+            <div class="selection-container">
+                @if(selectedItems.length > 0){
+                    <img src="{{selectedItems[0].originItem.img}}" class="select__option__img" />
+                    <span class="select__option__label">{{selectedItems[0].option.label}}</span>
+                }
+                @else {
+                    <span >No items selected</span>
+                }
+            </div>
+        </ng-template>
+    </ml-select>
+
 </div>
 
