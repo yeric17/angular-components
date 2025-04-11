@@ -1,15 +1,21 @@
 import { 
+  AfterContentInit,
   ChangeDetectionStrategy, 
   Component, 
+  contentChild, 
+  ContentChildren, 
   contentChildren, 
+  Directive, 
   ElementRef, 
   forwardRef, 
   HostListener, 
+  Input, 
   input, 
   model, 
   OnChanges, 
   OnInit, 
   output, 
+  QueryList, 
   signal, 
   SimpleChanges, 
   TemplateRef, 
@@ -34,6 +40,10 @@ const VALIDATOR = {
   multi: true
 }
 
+
+
+
+
 @Component({
     selector: 'ml-select',
     imports: [NgTemplateOutlet, FormsModule, SelectOptionComponent],
@@ -42,7 +52,7 @@ const VALIDATOR = {
     changeDetection: ChangeDetectionStrategy.OnPush,
     providers: [VALUE_ACCESOR, VALIDATOR]
 })
-export class SelectComponent<TItem> implements OnChanges, OnInit, ControlValueAccessor, Validator {
+export class SelectComponent<TItem> implements OnChanges, OnInit, ControlValueAccessor, Validator, AfterContentInit  {
 
 
   // #region component references
@@ -69,6 +79,9 @@ export class SelectComponent<TItem> implements OnChanges, OnInit, ControlValueAc
   formFieldPaddingXPx: number = 0;
   selectHeightPx: number = 0;
   selectListMinWidthPx: number = 0;
+
+  protected optionTemplateRef = signal<TemplateRef<any> | undefined>(undefined);
+  protected selectionTemplate = signal<TemplateRef<any> | undefined>(undefined)
   // #endregion
   
   // #region inputs
@@ -78,13 +91,13 @@ export class SelectComponent<TItem> implements OnChanges, OnInit, ControlValueAc
   placeholder = input<string>('Choose an item')
   multiple = input<boolean>(false)
   canSearch = input<boolean>(false)
-  selectionTemplate = input<TemplateRef<any> | undefined>(undefined)
-  optionTemplateRef = input<TemplateRef<any> | undefined>(undefined);
   size = input<'sm' | 'md' | 'lg'>('md')
   lazyLoadItemsNumber = input<number|undefined>(undefined)
   fullWidth = input<boolean>(false)
   min = input<number|undefined>(undefined)
   max = input<number|undefined>(undefined)
+
+  templates = contentChildren(TemplateRef<any>, { descendants: false })
   // #endregion
 
   // #region outputs
@@ -96,7 +109,24 @@ export class SelectComponent<TItem> implements OnChanges, OnInit, ControlValueAc
   protected uniqueId = this.generateUniqueId();
 
   // #region lifecycle
+
+  ngAfterContentInit(): void {
+    this.templates()?.forEach((template: TemplateRef<any>) => {
+      let templateName:string = (template as any)._declarationTContainer.localNames[0]
+
+      if(templateName == 'optionTemplate'){
+        this.optionTemplateRef.set(template);
+      }
+      if(templateName == 'selectionTemplate'){
+        this.selectionTemplate.set(template);
+      }
+    })
+  }
+
   ngOnInit(): void {
+
+    
+
     this.lazyLastIndex.set(this.lazyLoadItemsNumber() ? this.lazyLoadItemsNumber()! - 1 : 0);
 
     this.initialSetup();

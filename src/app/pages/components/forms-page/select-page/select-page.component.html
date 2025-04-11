@@ -64,13 +64,13 @@
     [items]="itemsWithImage"
     keyLabel="name"
     keyValue="id"
-    [lazyLoadItemsNumber]="20"
-    [optionTemplateRef]="optionTemplate"/>
+    [lazyLoadItemsNumber]="20">
+        <ng-template #optionTemplate let-item>
+            <img src="{{item.originItem.img}}" class="select__option__img">
+            <span>{{item.option.label}}</span>
+        </ng-template>
+    </ml-select>
         
-    <ng-template #optionTemplate let-item>
-        <img src="{{item.originItem.img}}" class="select__option__img">
-        <span>{{item.option.label}}</span>
-    </ng-template>
 
     <app-typo styleRef="heading2">Custom selection template</app-typo>
 
@@ -84,26 +84,25 @@
     [items]="itemsWithImage"
     keyLabel="name"
     keyValue="id"
-    [lazyLoadItemsNumber]="20"
-    [optionTemplateRef]="optionTemplate2"
-    [selectionTemplate]="selectionTemplate"/>
+    [lazyLoadItemsNumber]="20">
+        <ng-template #optionTemplate let-item>
+            <img src="{{item.originItem.img}}" class="select__option__img">
+            <span>{{item.option.label}}</span>
+        </ng-template>
+        <ng-template #selectionTemplate let-selectedItems>
+            <div class="selection-container">
+                @if(selectedItems.length > 0){
+                    <img src="{{selectedItems[0].originItem.img}}" class="select__option__img" />
+                    <span class="select__option__label">{{selectedItems[0].option.label}}</span>
+                }
+                @else {
+                    <span >No items selected</span>
+                }
+            </div>
+        </ng-template>
+    </ml-select>
         
-    <ng-template #optionTemplate2 let-item>
-        <img src="{{item.originItem.img}}" class="select__option__img">
-        <span>{{item.option.label}}</span>
-    </ng-template>
 
-    <ng-template #selectionTemplate let-selectedItems>
-        <div class="selection-container">
-            @if(selectedItems.length > 0){
-                <img src="{{selectedItems[0].originItem.img}}" class="select__option__img" />
-                <span class="select__option__label">{{selectedItems[0].option.label}}</span>
-            }
-            @else {
-                <span >No items selected</span>
-            }
-        </div>
-    </ng-template>
 
     <app-typo styleRef="heading2">Validation with reactive forms</app-typo>
 
