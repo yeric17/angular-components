@@ -7,7 +7,7 @@ export interface ExampleModel {
 
 export const getExampleModelItems = (count: number): ExampleModel[] => {
     const items: ExampleModel[] = [];
-    for (let i = 0; i < count; i++) {
+    for (let i = 1; i <= count; i++) {
         items.push({
             id: i,
             name: `Item ${i}`,

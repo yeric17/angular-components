@@ -101,9 +101,6 @@ export class SelectComponent<TItem> implements OnChanges, OnInit, ControlValueAc
 
     this.initialSetup();
 
-
-    console.log({lazyLoadItemsNumber: this.lazyLoadItemsNumber(), lazyLastIndex: this.lazyLastIndex()}) 
-
     this.listElement()?.nativeElement.addEventListener('scroll', (event: Event) => {
 
       const target = event.target as HTMLElement;

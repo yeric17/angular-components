@@ -9,7 +9,7 @@ type DataExplample = {
 @Component({
   selector: 'app-components',
   standalone: true,
-  imports: [SelectComponent],
+  imports: [],
   templateUrl: './components.component.html',
   styleUrls: ['./components.component.scss']
 })
