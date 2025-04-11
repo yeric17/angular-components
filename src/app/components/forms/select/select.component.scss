@@ -23,6 +23,10 @@
 
     --select-list-height: 12rem;
 
+    --select-disabled-background: var(--color-gray-100);
+    --select-disabled-color: var(--color-gray-400);
+    --select-disabled-border-color: var(--color-gray-200);
+
     height: auto;
     display: inline-flex;
 }
@@ -50,6 +54,7 @@
     grid-template-columns: 1fr auto;
     align-items: center;
     gap: .3rem;
+    user-select: none;
 }
 
 .select__button__text {
@@ -167,6 +172,13 @@
 .select__search__icon svg {
     width: 1em;
     height: 1em;
+}
+
+.disabled .select__button {
+    background: var(--select-disabled-background);
+    color: var(--select-disabled-color);
+    border-color: var(--select-disabled-border-color);
+    pointer-events: none;
 }
 
 //size modifiers

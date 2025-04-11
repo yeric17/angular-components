@@ -135,7 +135,6 @@
     <app-typo styleRef="body">Indicates whether the select component is currently loading items.</app-typo>
     <ml-select
     [items]="items"
-    [canSearch]="true"
     [multiple]="true"
     keyLabel="name"
     keyValue="id"
@@ -159,5 +158,15 @@
         </ng-template>
     </ml-select>
 
+    <app-typo styleRef="heading2">Disabled state</app-typo>
+    <app-typo styleRef="body">Disables the select component, preventing any interaction.</app-typo>
+    <ml-select
+    [items]="items"
+    [multiple]="true"
+    keyLabel="name"
+    keyValue="id"
+    [isDisabled]="true"
+    (onSelectItem)="itemSelect($event)"
+    >   </ml-select>
 </div>
 

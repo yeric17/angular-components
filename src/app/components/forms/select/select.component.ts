@@ -68,12 +68,13 @@ export class SelectComponent<TItem> implements OnChanges, OnInit, ControlValueAc
   selectedItems = signal<SelectableOption<TItem>[]>([])
   selectableItems: SelectableOption<TItem>[] = []
   activeList = signal<boolean>(false);
+  isDisabled = model<boolean>(false)
+  
   protected searchValue = signal<string>('');
   protected filteredItems = signal<SelectableOption<TItem>[]>([]);
   protected lazyLastIndex = signal<number>(0);
   protected verticalAlign = signal<'top' | 'bottom'>('bottom');
   protected horizontalAlign = signal<'left' | 'right'>('left');
-  protected isDisabled = signal<boolean>(false)
 
   selectListMaxHeightPx: number = 0;
   formFieldPaddingXPx: number = 0;
@@ -312,7 +313,7 @@ export class SelectComponent<TItem> implements OnChanges, OnInit, ControlValueAc
   }
 
   toggleList() {
-    if(this.isLoading()) return;
+    if(this.isLoading() || this.isDisabled()) return;
     this.setActiveList(!this.activeList());
   }
 
