@@ -69,7 +69,7 @@ export class SelectComponent<TItem> implements OnChanges, OnInit, ControlValueAc
   selectableItems: SelectableOption<TItem>[] = []
   activeList = signal<boolean>(false);
   isDisabled = model<boolean>(false)
-  
+
   protected searchValue = signal<string>('');
   protected filteredItems = signal<SelectableOption<TItem>[]>([]);
   protected lazyLastIndex = signal<number>(0);
@@ -83,6 +83,7 @@ export class SelectComponent<TItem> implements OnChanges, OnInit, ControlValueAc
 
   protected optionTemplateRef = signal<TemplateRef<any> | undefined>(undefined);
   protected selectionTemplate = signal<TemplateRef<any> | undefined>(undefined)
+  protected footerTemaplate = signal<TemplateRef<any> | undefined>(undefined)
   // #endregion
   
   // #region inputs
@@ -121,6 +122,9 @@ export class SelectComponent<TItem> implements OnChanges, OnInit, ControlValueAc
       }
       if(templateName == 'selectionTemplate'){
         this.selectionTemplate.set(template);
+      }
+      if(templateName == 'footerTemplate'){
+        this.footerTemaplate.set(template);
       }
     })
   }

@@ -77,5 +77,10 @@
                 </ng-template>
             }
         </ul>
+        @if(footerTemaplate()){
+            <div class="select__footer">
+                <ng-container [ngTemplateOutlet]="footerTemaplate()!"></ng-container>
+            </div>
+        }
     </div>
 </div>

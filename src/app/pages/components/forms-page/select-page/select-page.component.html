@@ -168,5 +168,25 @@
     [isDisabled]="true"
     (onSelectItem)="itemSelect($event)"
     >   </ml-select>
+
+    <app-typo styleRef="heading2">Disabled state</app-typo>
+    <app-typo styleRef="body">Disables the select component, preventing any interaction.</app-typo>
+    <ml-select
+    [items]="manyItems"
+    [lazyLoadItemsNumber]="20"
+    [canSearch]="true"
+    [multiple]="true"
+    keyLabel="name"
+    keyValue="id"
+    (onSelectItem)="itemSelect($event)"
+    >
+        <ng-template #footerTemplate>
+            <div class="footer-container">
+                <button class="footer-button">Add Item</button>
+            </div>
+        </ng-template>
+    </ml-select>
+
+
 </div>
 
