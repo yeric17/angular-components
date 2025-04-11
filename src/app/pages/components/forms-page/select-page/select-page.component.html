@@ -105,5 +105,32 @@
         </div>
     </ng-template>
 
+    <app-typo styleRef="heading2">Validation with reactive forms</app-typo>
+
+    <app-typo styleRef="body">
+        
+        
+        Ensure that at least two items are selected to proceed. Any selection errors will be displayed below.
+    </app-typo>
+    <form [formGroup]="form">
+
+        <ml-select
+        [canSearch]="true"
+        [multiple]="true"
+        [items]="items"
+        keyLabel="name"
+        keyValue="id"
+        formControlName="items"
+        (onSelectItems)="itemsSelect($event)"
+        (onChangeValidation)="validationChange()"
+        [min]="2"
+        />
+        <div>
+            @for(error of selectionErrors(); track $index){
+                <span class="error-message">{{error}}</span>
+            }
+        </div>
+    </form>
+
 </div>
 

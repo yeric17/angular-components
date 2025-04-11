@@ -1,7 +1,8 @@
-import { Component } from '@angular/core';
+import { Component, signal } from '@angular/core';
 import { SelectComponent } from '../../../../components/forms/select/select.component';
 import { TypoComponent } from '../../../../components/typography/typo/typo.component';
 import { getExampleModelItems } from '../../../../components/forms/select/data/select-dummy-data';
+import { FormControl, FormGroup, ReactiveFormsModule } from '@angular/forms';
 
 
 interface Item {
@@ -13,7 +14,7 @@ interface Item {
 @Component({
   selector: 'app-select-page',
   standalone: true,
-  imports: [SelectComponent,TypoComponent],
+  imports: [SelectComponent,TypoComponent, ReactiveFormsModule],
   templateUrl: './select-page.component.html',
   styleUrl: './select-page.component.scss'
 })
@@ -33,10 +34,30 @@ export class SelectPageComponent {
     { id: 4, name: 'Item 4', img: 'https://picsum.photos/id/240/200/300' },
     { id: 5, name: 'Item 5', img: 'https://picsum.photos/id/241/200/300' }
   ]
+
+  form = new FormGroup({
+    items: new FormControl<Item[]>([])
+  })
   
   manyItems: Item[] = getExampleModelItems(4000)
 
+  selectionErrors = signal<string[]>([])
+
   itemSelect(selectedItem: Item|undefined) {
     console.log('Selected item:', selectedItem);
+  }
+  itemsSelect(selectedItems:Item[]){
+  }
+  
+  validationChange(){
+    let errorKeys = Object.keys(this.form.controls.items.errors || {})
+    let errors = this.form.controls.items.errors;
+    let errorsString:string[] = []
+    for (const key of errorKeys) {
+      errorsString.push(errors![key]);
+    }
+  
+    this.selectionErrors.set(errorsString)
+
   }
 }

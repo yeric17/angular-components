@@ -16,7 +16,7 @@ import {
   viewChild
 } from '@angular/core';
 import { BaseOption, SelectableOption } from './models/select.models';
-import { ControlValueAccessor, FormsModule, NG_VALUE_ACCESSOR } from '@angular/forms';
+import { AbstractControl, ControlValueAccessor, FormsModule, NG_VALIDATORS, NG_VALUE_ACCESSOR, ValidationErrors, Validator } from '@angular/forms';
 import { NgTemplateOutlet } from '@angular/common';
 import { SelectOptionComponent } from './components/select-option/select-option.component';
 
@@ -28,6 +28,12 @@ const VALUE_ACCESOR = {
   multi: true
 }
 
+const VALIDATOR = {
+  provide: NG_VALIDATORS,
+  useExisting: forwardRef(() => SelectComponent),
+  multi: true
+}
+
 @Component({
   selector: 'ml-select',
   standalone: true,
@@ -35,9 +41,10 @@ const VALUE_ACCESOR = {
   templateUrl: './select.component.html',
   styleUrl: './select.component.scss',
   changeDetection: ChangeDetectionStrategy.OnPush,
-  providers: [VALUE_ACCESOR]
+  providers: [VALUE_ACCESOR, VALIDATOR]
 })
-export class SelectComponent<TItem> implements OnChanges, OnInit, ControlValueAccessor {
+export class SelectComponent<TItem> implements OnChanges, OnInit, ControlValueAccessor, Validator {
+
 
   // #region component references
   selectContainer = viewChild('selectContainer', { read: ElementRef })
@@ -84,6 +91,7 @@ export class SelectComponent<TItem> implements OnChanges, OnInit, ControlValueAc
   // #region outputs
   onSelectItems = output<TItem[]>()
   onSelectItem = output<TItem | undefined>()
+  onChangeValidation = output();
   // #endregion
 
   protected uniqueId = this.generateUniqueId();
@@ -201,10 +209,10 @@ export class SelectComponent<TItem> implements OnChanges, OnInit, ControlValueAc
     let originItems = items.map(item => item.originItem);
 
 
-    this.onSelectItems.emit(originItems);
-    this.onSelectItem.emit(originItems[0]);
     
     this.onChange(originItems)
+    this.onSelectItems.emit(originItems);
+    this.onSelectItem.emit(originItems[0]);
 
 
     if (!this.multiple()) {
@@ -277,7 +285,7 @@ export class SelectComponent<TItem> implements OnChanges, OnInit, ControlValueAc
   }
 
   toggleList() {
-    this.onTouched()
+
     this.setActiveList(!this.activeList());
   }
 
@@ -292,7 +300,11 @@ export class SelectComponent<TItem> implements OnChanges, OnInit, ControlValueAc
     if (!value) {
       this.searchValue.set('');
       this.resetFilteredItems();
+      this.onTouched()
+      
     }
+
+    this.onValidationChange()
 
     if(value){
       this.updateListPosition();
@@ -381,7 +393,7 @@ export class SelectComponent<TItem> implements OnChanges, OnInit, ControlValueAc
   }
   // #endregion
 
-  // #region control value accessor methods
+  // #region value accessor methods
   writeValue(obj: TItem[]): void {
     this.onChange(obj);
   }
@@ -396,5 +408,27 @@ export class SelectComponent<TItem> implements OnChanges, OnInit, ControlValueAc
   }
   onChange = (value: TItem[]) => { };
   onTouched = () => { };
+  // #endregion
+
+  // #region validator methods
+  validate(control: AbstractControl): ValidationErrors | null {
+    
+    if(this.min() === undefined || !control.dirty) return null
+    if(this.min() && this.selectedItems().length < this.min()!){
+      console.log('error min')
+      return {
+        'minSelectedItems': 'min ' + this.min()
+      }
+    }
+    return null
+  }
+  registerOnValidatorChange?(fn: () => void): void {
+    this.onValidationChange = () =>{
+      fn()
+      this.onChangeValidation.emit()
+    }
+  }
+
+  onValidationChange = () => {}
   // #endregion
 }
