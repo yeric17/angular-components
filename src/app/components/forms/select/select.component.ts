@@ -446,9 +446,8 @@ export class SelectComponent<TItem> implements OnChanges, OnInit, ControlValueAc
     
     if(this.min() === undefined || !control.dirty) return null
     if(this.min() && this.selectedItems().length < this.min()!){
-      console.log('error min')
       return {
-        'minSelectedItems': 'min ' + this.min()
+        'min': `Minimum ${this.min()} items required`
       }
     }
     return null

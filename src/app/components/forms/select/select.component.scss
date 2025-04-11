@@ -29,6 +29,10 @@
 
     --select-footer-background: var(--color-gray-100);
 
+    --select-font-size: var(--form-field-font-size);
+    --select-font-size-sm: var(--form-field-font-size-sm);
+    --select-font-size-lg: var(--form-field-font-size-lg);
+
     height: auto;
     display: inline-flex;
 }
@@ -57,6 +61,7 @@
     align-items: center;
     gap: .3rem;
     user-select: none;
+    font-size: var(--select-font-size);
 }
 
 .select__button__text {
