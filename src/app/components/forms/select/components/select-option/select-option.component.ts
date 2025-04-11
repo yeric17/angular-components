@@ -2,11 +2,10 @@
 import { Component, input, model, OnInit, output } from '@angular/core';
 
 @Component({
-  selector: 'ml-select-option',
-  standalone: true,
-  imports: [],
-  templateUrl: './select-option.component.html',
-  styleUrl: './select-option.component.scss'
+    selector: 'ml-select-option',
+    imports: [],
+    templateUrl: './select-option.component.html',
+    styleUrl: './select-option.component.scss'
 })
 export class SelectOptionComponent implements OnInit {
   name = input.required<string>();

@@ -2,11 +2,10 @@ import { Component, computed, input, model, output, signal } from '@angular/core
 import { FormsModule } from '@angular/forms';
 
 @Component({
-  selector: 'app-file-reader',
-  standalone: true,
-  imports: [FormsModule],
-  templateUrl: './file-reader.component.html',
-  styleUrl: './file-reader.component.scss'
+    selector: 'app-file-reader',
+    imports: [FormsModule],
+    templateUrl: './file-reader.component.html',
+    styleUrl: './file-reader.component.scss'
 })
 export class FileReaderComponent {
 

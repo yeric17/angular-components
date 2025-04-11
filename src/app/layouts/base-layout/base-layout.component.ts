@@ -4,11 +4,10 @@ import { AccordionComponent } from '../../components/accordion/accordion.compone
 import { AccordionItemComponent } from '../../components/accordion/accordion-item/accordion-item.component';
 
 @Component({
-  selector: 'app-base-layout',
-  standalone: true,
-  imports: [RouterOutlet, RouterLink,AccordionComponent,AccordionItemComponent],
-  templateUrl: './base-layout.component.html',
-  styleUrl: './base-layout.component.scss'
+    selector: 'app-base-layout',
+    imports: [RouterOutlet, RouterLink, AccordionComponent, AccordionItemComponent],
+    templateUrl: './base-layout.component.html',
+    styleUrl: './base-layout.component.scss'
 })
 export class BaseLayoutComponent {
 

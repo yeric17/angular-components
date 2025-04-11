@@ -4,11 +4,10 @@ import { TypoComponent } from '../../../components/typography/typo/typo.componen
 import { RouterOutlet } from '@angular/router';
 
 @Component({
-  selector: 'app-forms-page',
-  standalone: true,
-  imports: [RouterOutlet],
-  templateUrl: './forms-page.component.html',
-  styleUrl: './forms-page.component.scss'
+    selector: 'app-forms-page',
+    imports: [RouterOutlet],
+    templateUrl: './forms-page.component.html',
+    styleUrl: './forms-page.component.scss'
 })
 export class FormsPageComponent {
 

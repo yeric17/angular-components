@@ -35,13 +35,12 @@ const VALIDATOR = {
 }
 
 @Component({
-  selector: 'ml-select',
-  standalone: true,
-  imports: [NgTemplateOutlet, FormsModule, SelectOptionComponent],
-  templateUrl: './select.component.html',
-  styleUrl: './select.component.scss',
-  changeDetection: ChangeDetectionStrategy.OnPush,
-  providers: [VALUE_ACCESOR, VALIDATOR]
+    selector: 'ml-select',
+    imports: [NgTemplateOutlet, FormsModule, SelectOptionComponent],
+    templateUrl: './select.component.html',
+    styleUrl: './select.component.scss',
+    changeDetection: ChangeDetectionStrategy.OnPush,
+    providers: [VALUE_ACCESOR, VALIDATOR]
 })
 export class SelectComponent<TItem> implements OnChanges, OnInit, ControlValueAccessor, Validator {
 

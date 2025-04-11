@@ -12,11 +12,10 @@ interface Item {
 }
 
 @Component({
-  selector: 'app-select-page',
-  standalone: true,
-  imports: [SelectComponent,TypoComponent, ReactiveFormsModule],
-  templateUrl: './select-page.component.html',
-  styleUrl: './select-page.component.scss'
+    selector: 'app-select-page',
+    imports: [SelectComponent, TypoComponent, ReactiveFormsModule],
+    templateUrl: './select-page.component.html',
+    styleUrl: './select-page.component.scss'
 })
 export class SelectPageComponent {
   items: Item[] = [
