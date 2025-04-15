@@ -1,0 +1,42 @@
+:host{
+    --data-tag-background-color: var(--color-emerald-100);
+    --data-tag-text-color: var(--color-emerald-900);
+    --data-tag-border-color: var(--color-emerald-300);
+    
+    --data-tag-selected-background-color: var(--color-emerald-900);
+    --data-tag-selected-text-color: var(--color-emerald-100);
+    --data-tag-selected-border-color: var(--color-emerald-900);
+}
+
+.data-tag{
+    display: inline-flex;
+    align-items: center;
+    padding: 0.25rem 0.65rem;
+    border-radius: 3rem;
+    background-color: var(--data-tag-background-color);
+    color: var(--data-tag-text-color);
+    border: 1px solid var(--data-tag-border-color);
+    gap: 0.25rem;
+    cursor: pointer;
+}
+
+.data-tag__icon{
+    width: var(--icon-size);
+    height: var(--icon-size);
+    cursor: pointer;
+}
+
+.data-tag__input{
+    border: none;
+    background: none;
+    outline: none;
+    color: inherit;
+    width: auto;
+    display: inline-flex;
+}
+
+.selected.data-tag{
+    background-color: var(--data-tag-selected-background-color);
+    color: var(--data-tag-selected-text-color);
+    border-color: var(--data-tag-selected-border-color);
+}

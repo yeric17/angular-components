@@ -1,0 +1,20 @@
+:host{
+    --text-editor-padding-x: 1rem;
+    --text-editor-padding-y: 1rem;
+    --text-editor-border-radius: 0.5rem;
+    --text-editor-border-color: #ccc;
+
+    --text-editor-active-border-color: #007bff;
+}
+
+.text-editor__input{
+    min-height: 400px;
+    border: 1px solid var(--text-editor-border-color);
+    border-radius: var(--text-editor-border-radius);
+    padding: var(--text-editor-padding-y) var(--text-editor-padding-x);
+    outline: none;
+}
+
+.text-editor__input:focus{
+    border-color: var(--text-editor-active-border-color);
+}

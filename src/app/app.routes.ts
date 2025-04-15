@@ -8,6 +8,10 @@ export const routes: Routes = [
             {
                 path: 'select',
                 loadComponent: () => import('./pages/components/forms-page/select-page/select-page.component').then(m => m.SelectPageComponent)
+            },
+            {
+                path: 'data-tag-text-editor',
+                loadComponent: () => import('./pages/components/forms-page/data-tag-text-editor-page/data-tag-text-editor-page.component').then(m => m.DataTagTextEditorPageComponent)
             }
         ]
     },

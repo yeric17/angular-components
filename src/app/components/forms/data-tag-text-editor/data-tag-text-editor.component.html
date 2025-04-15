@@ -1,0 +1,26 @@
+<div class="text-editor">
+    <div>
+        +{{tags().length}} tags
+    </div>
+    <div
+        #editorInput
+        class="text-editor__input"
+        contenteditable="true"
+        (input)="inputChange($event)"
+        (keydown)="keyDown($event)">
+        <p #paragraph>
+            <ng-container></ng-container>
+            <br/>
+        </p>
+    </div>
+    <app-data-tag 
+        [tag]="{
+            id: 'tag1',
+            name: 'john doe',
+            data: {
+                email: 'john.doe@example.com'
+            },
+            selected: true
+        }"
+    />
+</div>
