@@ -9,7 +9,7 @@ contenteditable="true"
 </div>
 <div class="text-editor__search__tags">
     @for(tag of filteredTags(); track $index){
-        <div class="text-editor__search__tag" [class.selected]="selectedTag()?.name === tag.name" (click)="selectTag(tag)" contenteditable="false">
+        <div class="text-editor__search__tag" [class.selected]="selectedTag()!.name === tag.name" (click)="selectTag(tag)" contenteditable="false">
             <span class="text-editor__search__tag__name">{{tag.name}}</span>
         </div>
     }

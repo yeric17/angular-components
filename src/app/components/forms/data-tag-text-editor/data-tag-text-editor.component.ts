@@ -10,7 +10,7 @@ const DATA_TAG_SEARCH_ELEMENT_NAME = 'APP-DATA-TAG-SEARCH';
 
 @Component({
   selector: 'app-data-tag-text-editor',
-  imports: [DataTagComponent],
+  imports: [],
   templateUrl: './data-tag-text-editor.component.html',
   styleUrl: './data-tag-text-editor.component.scss'
 })
