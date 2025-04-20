@@ -5,7 +5,6 @@ import { DataTagComponent } from './components/data-tag/data-tag.component';
 import { DataTagSearchComponent } from './components/data-tag-search/data-tag-search.component';
 
 const DATA_TAG_ELEMENT_NAME = 'APP-DATA-TAG';
-const DATA_TAG_SEARCH_ELEMENT_NAME = 'APP-DATA-TAG-SEARCH';
 
 
 @Component({
