@@ -63,6 +63,11 @@ export class DataTagTextEditorComponent implements OnInit {
       }
       return prev;
     });
+
+    const mutationObserver = new MutationObserver((mutations) => {
+      this.handleMutation(mutations);
+    });
+    mutationObserver.observe(this.editorInput()!.nativeElement, { childList: true, subtree: true });
   }
   //#endregion
 
@@ -130,13 +135,62 @@ export class DataTagTextEditorComponent implements OnInit {
     this.updateCaretPosition();
   }
 
-  blur() {
-    // this.editorStateMachine().changeStateByName('Idle');
-  }
   //#endregion
 
 
   //#region Methods
+
+  handleMutation(mutations: MutationRecord[]) {
+
+    console.log(mutations);
+    for (const mutation of mutations) {
+      if (mutation.addedNodes.length === 0 && mutation.removedNodes.length === 0) continue;
+      if (mutation.addedNodes.item(0)?.nodeType === Node.ELEMENT_NODE && (mutation.addedNodes.item(0) as HTMLElement).tagName === 'BR') continue;
+      if (mutation.removedNodes.item(0)?.nodeType === Node.ELEMENT_NODE && (mutation.removedNodes.item(0) as HTMLElement).tagName === 'BR') continue;
+
+      if (mutation.addedNodes.length > 0) {
+        this.handleAddedMutation(mutation);
+        continue
+      }
+      if (mutation.removedNodes.length > 0) {
+        this.handleRemovedMutation(mutation);
+        continue
+      }
+    }
+
+  }
+
+  handleAddedMutation(mutation: MutationRecord) {
+    // if (this.editorStateMachine().currentState?.name !== 'undo-changes') return;
+
+    // const addedNode = mutation.addedNodes.item(0) as HTMLElement;
+
+    
+    // if (addedNode.tagName !== DATA_TAG_ELEMENT_NAME) return;
+
+    // const innerSpan = addedNode.querySelector('span') as HTMLElement;
+    
+    // const tagId = innerSpan.getAttribute('data-tag-id');
+    // const uniqueId = innerSpan.getAttribute('data-tag-uniqueid');
+
+
+
+    // const tag = this.insertedTags().find(tag => tag.id === tagId);
+    // if (tag === undefined) return;
+    // const component = this.createTagComponent(tag)
+
+    // if (!component) return;
+
+    // const { element: tagElement } = component;
+
+    // addedNode.replaceWith(tagElement);
+
+  }
+
+  handleRemovedMutation(mutation: MutationRecord) {
+
+  }
+
   checkCommands(event: KeyboardEvent) {
     for (const command of this.commands()) {
       if (command.shouldExecute(event)) {
@@ -148,13 +202,25 @@ export class DataTagTextEditorComponent implements OnInit {
             if (this.isTagSelectionConfirmed()) {
               event.preventDefault();
 
-              this.createTagComponent(this.selectedTag()!, this.searchTagComponent()!);
+              this.renderTagComponent(this.selectedTag()!, this.searchTagComponent()!);
 
               this.searchTagComponent.set(null);
               this.selectedTag.set(null);
               this.editorStateMachine().changeStateByName('Idle');
               return;
             }
+          });
+        }
+        if (command.name === 'CTRL+Z') {
+          command.command(() => {
+            event.preventDefault();
+            //TODO: Implement undo changes
+            // this.editorStateMachine().changeStateByName('undo-changes');
+
+            // const timeout = setTimeout(() => {
+            //   this.editorStateMachine().changeStateByName('Idle');
+            //   clearTimeout(timeout);
+            // }, 2000);
           });
         }
       }
@@ -235,15 +301,14 @@ export class DataTagTextEditorComponent implements OnInit {
     }, 2);
   }
 
-  createTagComponent(tag: Tag, searchComponent: ComponentRef<DataTagSearchComponent>) {
+  renderTagComponent(tag: Tag, searchComponent: ComponentRef<DataTagSearchComponent>) {
 
-    const componentRef = this.paragraphContainerRef()?.createComponent(DataTagComponent);
-    if (!componentRef) return;
+    const result = this.createTagComponent(tag);
 
-    componentRef.setInput('tag', tag);
+    if (!result) return;
 
-    const nativeElement = componentRef.location.nativeElement;
-    nativeElement.setAttribute('contenteditable', 'false');
+    const { component: componentRef, element: nativeElement } = result;
+
 
     const textNode = this.renderer.createText(" ");
 
@@ -258,13 +323,22 @@ export class DataTagTextEditorComponent implements OnInit {
     setTimeout(() => {
       this.renderer.insertBefore(searchComponentElement.parentNode, nativeElement, searchComponentElement);
       componentRef.setInput('visible', true);
-
-
       searchComponent.destroy();
-
-      console.log(this.editorToData());
     }, 0);
 
+  }
+
+
+  createTagComponent(tag: Tag): { component: ComponentRef<DataTagComponent>, element: any } | null {
+    const componentRef = this.paragraphContainerRef()?.createComponent(DataTagComponent);
+    if (!componentRef) return null;
+
+    componentRef.setInput('tag', tag);
+
+    const nativeElement = componentRef.location.nativeElement;
+    nativeElement.setAttribute('contenteditable', 'false');
+
+    return { component: componentRef, element: nativeElement };
   }
 
   updateCaretPosition() {
@@ -320,19 +394,19 @@ export class DataTagTextEditorComponent implements OnInit {
 
           const text = node.textContent || '';
 
-          if(text.trim() === '' || node.nodeType == node.COMMENT_NODE) continue;
+          if (text.trim() === '' || node.nodeType == node.COMMENT_NODE) continue;
 
-          let item:TextEditorItem = {
+          let item: TextEditorItem = {
             type: TextEditorItemType.Text,
             content: text
           }
 
           if (this.isTagNode(node)) {
             item.type = TextEditorItemType.Tag;
-            
+
             const tagComponent = node as HTMLElement;
             const tagId = tagComponent.querySelector('span')?.getAttribute('data-tag-id')
-            
+
             const tagInserted = this.insertedTags().find(tag => tag.id === tagId);
 
             item.tag = tagInserted
@@ -343,7 +417,7 @@ export class DataTagTextEditorComponent implements OnInit {
       }
     }
 
-    return editorData ;
+    return editorData;
   }
 
 
@@ -352,9 +426,9 @@ export class DataTagTextEditorComponent implements OnInit {
   }
 
   isTagNode(node: Node): boolean {
-    
-   return node.nodeType === Node.ELEMENT_NODE &&
-    (node as HTMLElement).nodeName === DATA_TAG_ELEMENT_NAME
+
+    return node.nodeType === Node.ELEMENT_NODE &&
+      (node as HTMLElement).nodeName === DATA_TAG_ELEMENT_NAME
   }
 
   //#endregion

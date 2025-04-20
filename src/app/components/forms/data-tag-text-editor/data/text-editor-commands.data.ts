@@ -28,6 +28,15 @@ export const commands = signal<TextEditorCommand[]>([
         shouldExecute: (event: KeyboardEvent) => {
             return event.key === 'Tab' || event.key === 'Enter';
         }
+    },
+    {
+        name: 'CTRL+Z',
+        command: (callback) => {
+            callback();
+        },
+        shouldExecute: (event: KeyboardEvent) => {
+            return event.ctrlKey && event.key === 'z';
+        }
     }
 ])
 
@@ -54,6 +63,18 @@ export const editorStates:IEditorState[] = [
         },
         onType: (editorStateMachine: EditorStateMachine) => {
             console.log('Typing in Searching Tag State');
+        }
+    },
+    {
+        name: 'undo-changes',
+        onEnter: (editorStateMachine: EditorStateMachine) => {
+            console.log('Entering undo Changes State');
+        },
+        onExit: (editorStateMachine: EditorStateMachine) => {
+            console.log('Exiting undo Changes State');
+        },
+        onType: (editorStateMachine: EditorStateMachine) => {
+            console.log('Typing in undo Changes State');
         }
     }
 ]

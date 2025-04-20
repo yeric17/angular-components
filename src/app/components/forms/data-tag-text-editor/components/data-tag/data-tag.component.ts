@@ -14,6 +14,8 @@ export class DataTagComponent  {
   onSelectTag = output<Tag>();
   
 
+  protected uniqueId = Math.random().toString(36).substring(2, 15);
+
   protected visible = input<boolean>(false);
 
   

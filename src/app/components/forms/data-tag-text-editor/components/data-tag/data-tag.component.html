@@ -3,6 +3,7 @@
     contenteditable="false" 
     (click)="selectTag($event)"
     [attr.data-tag-id]="tag().id"
+    [attr.data-tag-uniqueid]="uniqueId"
     [attr.data-tag-name]="tag().name"
     [class.visible]="visible()">
 
