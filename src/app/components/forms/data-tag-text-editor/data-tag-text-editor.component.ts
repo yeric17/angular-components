@@ -1,5 +1,5 @@
 import { Component, ComponentRef, ElementRef, inject, input, model, OnInit, output, Renderer2, signal, viewChild, ViewContainerRef } from '@angular/core';
-import { EditorStateMachine, Tag, TextEditorCommand } from './models/text-editor-model';
+import { EditorStateMachine, Tag, TextEditorCommand, TextEditorData, TextEditorItem, TextEditorItemType } from './models/text-editor-model';
 import { commands, editorStates } from './data/text-editor-commands.data';
 import { DataTagComponent } from './components/data-tag/data-tag.component';
 import { DataTagSearchComponent } from './components/data-tag-search/data-tag-search.component';
@@ -20,7 +20,6 @@ export class DataTagTextEditorComponent implements OnInit {
   protected editorInput = viewChild('editorInput', { read: ElementRef<HTMLDivElement> });
   protected originParagraphElement = viewChild('paragraph', { read: ElementRef<HTMLParagraphElement> });
   protected paragraphContainerRef = viewChild('paragraphContainer', { read: ViewContainerRef });
-  protected currentParagraph:HTMLParagraphElement | null = null;
   //#endregion
 
   //#region Injections
@@ -62,7 +61,6 @@ export class DataTagTextEditorComponent implements OnInit {
       }
       return prev;
     });
-    this.currentParagraph = this.originParagraphElement()?.nativeElement;
   }
   //#endregion
 
@@ -85,7 +83,7 @@ export class DataTagTextEditorComponent implements OnInit {
     this.checkCommands(event);
 
 
-    if(this.isNavigatingOnTags(event)) {
+    if (this.isNavigatingOnTags(event)) {
       event.preventDefault();
       const searchTagComponent = this.searchTagComponent()?.instance as DataTagSearchComponent;
       if (searchTagComponent) {
@@ -101,7 +99,7 @@ export class DataTagTextEditorComponent implements OnInit {
   }
 
   isTagSelectionConfirmed(): boolean {
-    return this.editorStateMachine().currentState?.name === 'searching-tag' &&  this.selectedTag() !== null;
+    return this.editorStateMachine().currentState?.name === 'searching-tag' && this.selectedTag() !== null;
   }
 
 
@@ -149,21 +147,11 @@ export class DataTagTextEditorComponent implements OnInit {
               event.preventDefault();
 
               this.createTagComponent(this.selectedTag()!, this.searchTagComponent()!);
-              
+
               this.searchTagComponent.set(null);
               this.selectedTag.set(null);
               this.editorStateMachine().changeStateByName('Idle');
               return;
-            }
-            if(event.key === 'Enter') {
-              const placeholderElement = this.renderer.createElement('span');
-              this.caretPosition()?.insertNode(placeholderElement);
-
-              this.currentParagraph = placeholderElement.parentElement as HTMLParagraphElement;
-
-              if (placeholderElement.parentElement) {
-                placeholderElement.parentElement.removeChild(placeholderElement);
-              }
             }
           });
         }
@@ -245,7 +233,7 @@ export class DataTagTextEditorComponent implements OnInit {
     }, 2);
   }
 
-  createTagComponent(tag: Tag, searchComponent:ComponentRef<DataTagSearchComponent>) {
+  createTagComponent(tag: Tag, searchComponent: ComponentRef<DataTagSearchComponent>) {
 
     const componentRef = this.paragraphContainerRef()?.createComponent(DataTagComponent);
     if (!componentRef) return;
@@ -258,8 +246,8 @@ export class DataTagTextEditorComponent implements OnInit {
     const textNode = this.renderer.createText(" ");
 
     this.renderer.appendChild(searchComponent.location.nativeElement, textNode);
-    
-    
+
+
     const searchComponentElement = searchComponent.location.nativeElement;
 
     setTimeout(() => {
@@ -267,6 +255,8 @@ export class DataTagTextEditorComponent implements OnInit {
       componentRef.setInput('visible', true);
 
       searchComponent.destroy();
+
+      console.log(this.editorToData());
     }, 0);
 
   }
@@ -302,5 +292,58 @@ export class DataTagTextEditorComponent implements OnInit {
     return result;
   }
 
-  //#end region
+  editorToData(): TextEditorData[] {
+    const editorInputElement = this.editorInput()?.nativeElement as HTMLDivElement;
+    const editorData: TextEditorData[] = [];
+
+    for (let i = 0; i < editorInputElement.childNodes.length; i++) {
+
+      let currentEditorData: TextEditorData = {
+        items: []
+      }
+
+      editorData.push(currentEditorData);
+
+      const paragraphNode = editorInputElement.childNodes[i];
+
+      if (this.isParagraphNode(paragraphNode)) {
+
+        for (let j = 0; j < paragraphNode.childNodes.length; j++) {
+
+          const node = paragraphNode.childNodes[j];
+
+          const text = node.textContent || '';
+
+          if(text.trim() === '' || node.nodeType == node.COMMENT_NODE) continue;
+
+          let item:TextEditorItem = {
+            type: TextEditorItemType.Text,
+            content: text
+          }
+
+          if (this.isTagNode(node)) {
+            item.type = TextEditorItemType.Tag;
+            
+          }
+
+          currentEditorData.items.push(item);
+        }
+      }
+    }
+
+    return editorData ;
+  }
+
+
+  isParagraphNode(node: Node): boolean {
+    return node.nodeType === Node.ELEMENT_NODE && (node as HTMLElement).tagName === 'P';
+  }
+
+  isTagNode(node: Node): boolean {
+    
+   return node.nodeType === Node.ELEMENT_NODE &&
+    (node as HTMLElement).nodeName === DATA_TAG_ELEMENT_NAME
+  }
+
+  //#endregion
 }
