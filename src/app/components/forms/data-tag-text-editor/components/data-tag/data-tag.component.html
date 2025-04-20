@@ -4,11 +4,12 @@
     (click)="selectTag($event)"
     [attr.data-tag-id]="tag().id"
     [attr.data-tag-name]="tag().name"
-    [class.selected]="tag().selected">
+    [class.selected]="tag().selected"
+    [class.visible]="visible()">
 
-    <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="data-tag__icon" (click)="removeTag($event)">
+    <!-- <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="data-tag__icon" (click)="removeTag($event)">
         <path stroke-linecap="round" stroke-linejoin="round" d="M6 18 18 6M6 6l12 12" />
-    </svg>          
+    </svg>           -->
 
     <span class="data-tag__label">{{tag().name}}</span>
 </span>

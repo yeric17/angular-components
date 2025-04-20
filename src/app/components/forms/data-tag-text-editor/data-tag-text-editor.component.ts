@@ -18,9 +18,9 @@ export class DataTagTextEditorComponent implements OnInit {
 
   //#region DOM Elements
   protected editorInput = viewChild('editorInput', { read: ElementRef<HTMLDivElement> });
-  protected currentParagraph = viewChild('paragraph', { read: ElementRef<HTMLParagraphElement> });
-  protected paragraphContainer = viewChild('paragraphContainer', { read: ViewContainerRef });
-  protected paragraphViewRef = viewChild('paragraph', { read: ViewContainerRef });
+  protected originParagraphElement = viewChild('paragraph', { read: ElementRef<HTMLParagraphElement> });
+  protected paragraphContainerRef = viewChild('paragraphContainer', { read: ViewContainerRef });
+  protected currentParagraph:HTMLParagraphElement | null = null;
   //#endregion
 
   //#region Injections
@@ -62,6 +62,7 @@ export class DataTagTextEditorComponent implements OnInit {
       }
       return prev;
     });
+    this.currentParagraph = this.originParagraphElement()?.nativeElement;
   }
   //#endregion
 
@@ -71,9 +72,9 @@ export class DataTagTextEditorComponent implements OnInit {
 
     this.editorStateMachine().update();
 
-    if (!this.currentParagraph()?.nativeElement.querySelector('br')) {
+    if (!this.originParagraphElement()?.nativeElement.querySelector('br')) {
       const br = this.renderer.createElement('br');
-      this.renderer.appendChild(this.currentParagraph()?.nativeElement, br);
+      this.renderer.appendChild(this.originParagraphElement()?.nativeElement, br);
     }
     this.updateCaretPosition();
     this.searchTagComponent()?.instance.inputChange();
@@ -155,7 +156,14 @@ export class DataTagTextEditorComponent implements OnInit {
               return;
             }
             if(event.key === 'Enter') {
-              
+              const placeholderElement = this.renderer.createElement('span');
+              this.caretPosition()?.insertNode(placeholderElement);
+
+              this.currentParagraph = placeholderElement.parentElement as HTMLParagraphElement;
+
+              if (placeholderElement.parentElement) {
+                placeholderElement.parentElement.removeChild(placeholderElement);
+              }
             }
           });
         }
@@ -166,14 +174,14 @@ export class DataTagTextEditorComponent implements OnInit {
   deleteCommandBehavior(event: KeyboardEvent) {
     const editorInputElement = this.editorInput()?.nativeElement as HTMLDivElement;
 
-    const currentParagraph = this.currentParagraph()?.nativeElement as HTMLElement;
+    const originParagraph = this.originParagraphElement()?.nativeElement as HTMLElement;
 
     if (editorInputElement.childNodes.length === 1 && editorInputElement.textContent?.length === 1) {
       event.preventDefault();
       // Clear the paragraph when only a single character remains
-      const textNode = Array.from(currentParagraph.childNodes).find(node => node.nodeType === Node.TEXT_NODE);
+      const textNode = Array.from(originParagraph.childNodes).find(node => node.nodeType === Node.TEXT_NODE);
       if (textNode && textNode.nodeType === Node.TEXT_NODE) {
-        currentParagraph.removeChild(textNode);
+        originParagraph.removeChild(textNode);
       }
     }
 
@@ -192,7 +200,7 @@ export class DataTagTextEditorComponent implements OnInit {
     if (caretPosition === null) return;
 
     // Crear el componente correctamente dentro del ViewContainerRef
-    const componentRef = this.paragraphContainer()?.createComponent(DataTagSearchComponent);
+    const componentRef = this.paragraphContainerRef()?.createComponent(DataTagSearchComponent);
     if (!componentRef) return;
 
     componentRef.setInput('initialChart', '#'); // Corrige el nombre del input también
@@ -239,7 +247,7 @@ export class DataTagTextEditorComponent implements OnInit {
 
   createTagComponent(tag: Tag, searchComponent:ComponentRef<DataTagSearchComponent>) {
 
-    const componentRef = this.paragraphContainer()?.createComponent(DataTagComponent);
+    const componentRef = this.paragraphContainerRef()?.createComponent(DataTagComponent);
     if (!componentRef) return;
 
     componentRef.setInput('tag', tag);
@@ -252,11 +260,13 @@ export class DataTagTextEditorComponent implements OnInit {
     this.renderer.appendChild(searchComponent.location.nativeElement, textNode);
     
     
+    const searchComponentElement = searchComponent.location.nativeElement;
 
     setTimeout(() => {
-      this.renderer.insertBefore(this.currentParagraph()?.nativeElement, nativeElement, searchComponent.location.nativeElement);
+      this.renderer.insertBefore(searchComponentElement.parentNode, nativeElement, searchComponentElement);
+      componentRef.setInput('visible', true);
       searchComponent.destroy();
-    }, 2);
+    }, 0);
 
       
     
@@ -271,9 +281,9 @@ export class DataTagTextEditorComponent implements OnInit {
 
     let caretPosition = selection && selection.rangeCount > 0 ? selection.getRangeAt(0) : null;
 
-    const paragraph = this.currentParagraph()?.nativeElement as HTMLParagraphElement;
+    const editorElement = this.editorInput()?.nativeElement as HTMLParagraphElement;
 
-    if (paragraph.contains(selection.anchorNode as Node)) {
+    if (editorElement.contains(selection.anchorNode as Node)) {
 
       this.caretPosition.set(caretPosition);
     }

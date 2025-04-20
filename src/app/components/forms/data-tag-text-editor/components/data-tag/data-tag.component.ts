@@ -1,4 +1,4 @@
-import { Component, input, model, output } from '@angular/core';
+import { Component, input, model, OnInit, output } from '@angular/core';
 import { Tag } from '../../models/text-editor-model';
 
 @Component({
@@ -7,11 +7,16 @@ import { Tag } from '../../models/text-editor-model';
   templateUrl: './data-tag.component.html',
   styleUrl: './data-tag.component.scss'
 })
-export class DataTagComponent {
+export class DataTagComponent  {
   tag = model.required<Tag>();
 
   onRemoveTag = output<Tag>();
   onSelectTag = output<Tag>();
+  
+
+  protected visible = input<boolean>(false);
+
+  
 
   removeTag(event: MouseEvent) {
     event.stopPropagation();
