@@ -35,6 +35,9 @@ export class DataTagTextEditorComponent implements OnInit {
 
   protected pendingCommand = signal<TextEditorCommand | null>(null);
   protected searchTagComponent = signal<ComponentRef<DataTagSearchComponent> | null>(null);
+
+  protected insertedTags = signal<Tag[]>([]);
+  protected removedTags = signal<Tag[]>([]);
   //#endregion
 
   //#region Inputs
@@ -249,10 +252,14 @@ export class DataTagTextEditorComponent implements OnInit {
 
 
     const searchComponentElement = searchComponent.location.nativeElement;
+    this.insertedTags.update((prev) => {
+      return [...prev, tag]
+    })
 
     setTimeout(() => {
       this.renderer.insertBefore(searchComponentElement.parentNode, nativeElement, searchComponentElement);
       componentRef.setInput('visible', true);
+
 
       searchComponent.destroy();
 
@@ -324,6 +331,12 @@ export class DataTagTextEditorComponent implements OnInit {
           if (this.isTagNode(node)) {
             item.type = TextEditorItemType.Tag;
             
+            const tagComponent = node as HTMLElement;
+            const tagId = tagComponent.querySelector('span')?.getAttribute('data-tag-id')
+            
+            const tagInserted = this.insertedTags().find(tag => tag.id === tagId);
+
+            item.tag = tagInserted
           }
 
           currentEditorData.items.push(item);
