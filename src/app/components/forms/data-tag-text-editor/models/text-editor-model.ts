@@ -7,7 +7,21 @@ export interface Tag {
     id: string
     name: string
     data?: any
-    selected: boolean
+}
+
+export interface TextEditorData {
+    items: TextEditorItem[]
+}
+
+export interface TextEditorItem {
+    type: TextEditorItemType;
+    content: string;
+    tag?: Tag;
+}
+
+export const enum TextEditorItemType {
+    Text = 'text',
+    Tag = 'tag'
 }
 
 export interface TextEditorCommand {

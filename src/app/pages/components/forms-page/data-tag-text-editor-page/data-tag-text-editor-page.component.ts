@@ -19,7 +19,6 @@ export class DataTagTextEditorPageComponent {
         email: 'john.doe@example.com',
         phone: '+1 555-123-4567'
       },
-      selected: false
     },
     {
       id: '2',
@@ -28,7 +27,6 @@ export class DataTagTextEditorPageComponent {
         email: 'jane.smith@example.com',
         phone: '+1 555-234-5678'
       },
-      selected: false
     },
     {
       id: '3',
@@ -37,7 +35,6 @@ export class DataTagTextEditorPageComponent {
         email: 'carlos.rodriguez@example.com',
         phone: '+1 555-345-6789'
       },
-      selected: false
     },
     {
       id: '4',
@@ -46,7 +43,6 @@ export class DataTagTextEditorPageComponent {
         email: 'maria.garcia@example.com',
         phone: '+1 555-456-7890'
       },
-      selected: false
     },
     {
       id: '5',
@@ -54,8 +50,7 @@ export class DataTagTextEditorPageComponent {
       data: {
         email: 'alex.johnson@example.com',
         phone: '+1 555-567-8901'
-      },
-      selected: false
+      }
     }
   ]);
   

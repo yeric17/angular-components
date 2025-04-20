@@ -265,12 +265,10 @@ export class DataTagTextEditorComponent implements OnInit {
     setTimeout(() => {
       this.renderer.insertBefore(searchComponentElement.parentNode, nativeElement, searchComponentElement);
       componentRef.setInput('visible', true);
+
       searchComponent.destroy();
     }, 0);
 
-      
-    
-    
   }
 
   updateCaretPosition() {
