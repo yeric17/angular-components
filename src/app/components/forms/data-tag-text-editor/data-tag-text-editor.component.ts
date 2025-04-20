@@ -1,7 +1,12 @@
-import { Component, ElementRef, inject, input, model, output, Renderer2, signal, viewChild } from '@angular/core';
-import { Tag } from './models/text-editor-model';
-import { commands } from './data/text-editor-commands.data';
+import { Component, ComponentRef, ElementRef, inject, input, model, OnInit, output, Renderer2, signal, viewChild, ViewContainerRef } from '@angular/core';
+import { EditorStateMachine, Tag, TextEditorCommand } from './models/text-editor-model';
+import { commands, editorStates } from './data/text-editor-commands.data';
 import { DataTagComponent } from './components/data-tag/data-tag.component';
+import { DataTagSearchComponent } from './components/data-tag-search/data-tag-search.component';
+
+const DATA_TAG_ELEMENT_NAME = 'APP-DATA-TAG';
+const DATA_TAG_SEARCH_ELEMENT_NAME = 'APP-DATA-TAG-SEARCH';
+
 
 @Component({
   selector: 'app-data-tag-text-editor',
@@ -9,27 +14,34 @@ import { DataTagComponent } from './components/data-tag/data-tag.component';
   templateUrl: './data-tag-text-editor.component.html',
   styleUrl: './data-tag-text-editor.component.scss'
 })
-export class DataTagTextEditorComponent {
+export class DataTagTextEditorComponent implements OnInit {
 
   //#region DOM Elements
-  protected editorInput = viewChild('editorInput',{read: ElementRef<HTMLDivElement>});
-  protected currentParagraph = viewChild('paragraph',{read: ElementRef<HTMLParagraphElement>});
+  protected editorInput = viewChild('editorInput', { read: ElementRef<HTMLDivElement> });
+  protected currentParagraph = viewChild('paragraph', { read: ElementRef<HTMLParagraphElement> });
+  protected paragraphContainer = viewChild('paragraphContainer', { read: ViewContainerRef });
+  protected paragraphViewRef = viewChild('paragraph', { read: ViewContainerRef });
   //#endregion
 
   //#region Injections
-  protected rederer = inject(Renderer2);
+  protected renderer = inject(Renderer2);
   //#endregion
 
   //#region Properties
   protected commands = commands;
-  protected caretPosition = signal<any>(0);
+  protected caretPosition = signal<Range | null>(null);
   protected selectedTag = signal<Tag | null>(null);
+  protected editorStateMachine = signal<EditorStateMachine>(new EditorStateMachine(editorStates, editorStates[0]));
+  protected insertCommand = this.commands().find((command) => command.name === 'InsertTag')!;
+
+  protected pendingCommand = signal<TextEditorCommand | null>(null);
+  protected searchTagComponent = signal<ComponentRef<DataTagSearchComponent> | null>(null);
   //#endregion
-  
+
   //#region Inputs
   tags = model.required<Tag[]>();
   placeholder = model<string>('');
-  isInsertingTag = input<(event:KeyboardEvent) => boolean>((event:KeyboardEvent) => {
+  isInsertingTag = input<(event: KeyboardEvent) => boolean>((event: KeyboardEvent) => {
     return event.key === '@';
   });
   //#endregion
@@ -38,22 +50,87 @@ export class DataTagTextEditorComponent {
   onTagAdded = output<Tag>();
   onTagRemoved = output<Tag>();
   onTagSelected = output<Tag>();
-  
+
   //#endregion
 
+  //#region Lifecycle Hooks
+  ngOnInit() {
+    this.commands.update((prev) => {
+      let insertCommand = prev.find((command) => command.name === 'InsertTag');
+      if (insertCommand) {
+        insertCommand.shouldExecute = this.isInsertingTag();
+      }
+      return prev;
+    });
+  }
+  //#endregion
 
   //#region Event Methods
   inputChange(event: Event) {
     const element = event.target as HTMLElement;
-    const value = element.innerText;
 
-    
-    
+    this.editorStateMachine().update();
+
+    if (!this.currentParagraph()?.nativeElement.querySelector('br')) {
+      const br = this.renderer.createElement('br');
+      this.renderer.appendChild(this.currentParagraph()?.nativeElement, br);
+    }
+    this.updateCaretPosition();
+    this.searchTagComponent()?.instance.inputChange();
   }
+
   keyDown(event: KeyboardEvent) {
+    this.updateCaretPosition();
     this.checkCommands(event);
 
+
+    if(this.isNavigatingOnTags(event)) {
+      event.preventDefault();
+      const searchTagComponent = this.searchTagComponent()?.instance as DataTagSearchComponent;
+      if (searchTagComponent) {
+        searchTagComponent.navigate(event);
+      }
+    }
+
+
+  }
+
+  isNavigatingOnTags(event: KeyboardEvent): boolean {
+    return this.editorStateMachine().currentState?.name === 'searching-tag' && event.key === 'ArrowDown' || event.key === 'ArrowUp';
+  }
+
+  isTagSelectionConfirmed(): boolean {
+    return this.editorStateMachine().currentState?.name === 'searching-tag' &&  this.selectedTag() !== null;
+  }
+
+
+  keyUp(event: KeyboardEvent) {
     this.updateCaretPosition();
+    if (this.pendingCommand() !== null) {
+      this.pendingCommand()!.command(() => {
+        this.insertTagCommandBehavior();
+        this.pendingCommand.set(null);
+      });
+    }
+
+  }
+
+  keyPress(event: KeyboardEvent) {
+    this.updateCaretPosition();
+    if (this.insertCommand.shouldExecute(event)) {
+      event.preventDefault()
+      this.pendingCommand.set(this.insertCommand);
+    }
+  }
+
+
+
+  focus() {
+    this.updateCaretPosition();
+  }
+
+  blur() {
+    // this.editorStateMachine().changeStateByName('Idle');
   }
   //#endregion
 
@@ -62,71 +139,148 @@ export class DataTagTextEditorComponent {
   checkCommands(event: KeyboardEvent) {
     for (const command of this.commands()) {
       if (command.shouldExecute(event)) {
-        command.command(() => {
-          const editorInputElement = this.editorInput()?.nativeElement as HTMLDivElement;
-          if(editorInputElement.childNodes.length === 1 && editorInputElement.textContent === ''){
-            event.preventDefault();
-          }
-        });
+        if (command.name === 'Delete') {
+          command.command(() => this.deleteCommandBehavior(event));
+        }
+        if (command.name === 'ConfirmTag') {
+          command.command(() => {
+            if (this.isTagSelectionConfirmed()) {
+              event.preventDefault();
+
+              this.createTagComponent(this.selectedTag()!, this.searchTagComponent()!);
+              
+              this.searchTagComponent.set(null);
+              this.selectedTag.set(null);
+              this.editorStateMachine().changeStateByName('Idle');
+              return;
+            }
+            if(event.key === 'Enter') {
+              
+            }
+          });
+        }
       }
-    }
-    if(this.isInsertingTag()(event)){
-      
     }
   }
 
-  updateCaretPosition() {
+  deleteCommandBehavior(event: KeyboardEvent) {
+    const editorInputElement = this.editorInput()?.nativeElement as HTMLDivElement;
+
+    const currentParagraph = this.currentParagraph()?.nativeElement as HTMLElement;
+
+    if (editorInputElement.childNodes.length === 1 && editorInputElement.textContent?.length === 1) {
+      event.preventDefault();
+      // Clear the paragraph when only a single character remains
+      const textNode = Array.from(currentParagraph.childNodes).find(node => node.nodeType === Node.TEXT_NODE);
+      if (textNode && textNode.nodeType === Node.TEXT_NODE) {
+        currentParagraph.removeChild(textNode);
+      }
+    }
+
+    if (editorInputElement.childNodes.length === 1 && editorInputElement.textContent === '') {
+      event.preventDefault();
+    }
+  }
+
+  insertTagCommandBehavior() {
+    this.editorStateMachine().changeStateByName('searching-tag');
+    this.createSearchTagComponent();
+  }
+
+  createSearchTagComponent() {
+    const caretPosition = this.caretPosition();
+    if (caretPosition === null) return;
+
+    // Crear el componente correctamente dentro del ViewContainerRef
+    const componentRef = this.paragraphContainer()?.createComponent(DataTagSearchComponent);
+    if (!componentRef) return;
+
+    componentRef.setInput('initialChart', '#'); // Corrige el nombre del input también
+    componentRef.setInput('tags', this.tags());
+
+    componentRef.instance.onChangeTagSelected.subscribe((tag: Tag) => {
+      this.selectedTag.set(tag);
+    })
+
+    this.searchTagComponent.set(componentRef);
+
+
+    // Obtener el elemento renderizado del componente
+    const nativeElement = componentRef.location.nativeElement;
+
+    // Crear un span temporal como punto de inserción del caret
+    const spanMarker = this.renderer.createElement('span');
+    spanMarker.textContent = '\u200B'; // caracter invisible
+    caretPosition.insertNode(spanMarker);
+
+    // Mover el componente justo después del marcador
+    spanMarker.parentNode?.insertBefore(nativeElement, spanMarker.nextSibling);
+
+
+
+    // Limpiar el marcador
+    spanMarker.remove();
+
+    // Esperar a que el componente renderice
+    setTimeout(() => {
+      const input = nativeElement.querySelector('[data-focus]') as HTMLElement;
+      input?.focus();
+
+      if (input?.isContentEditable) {
+        const range = document.createRange();
+        const sel = window.getSelection();
+        range.selectNodeContents(input);
+        range.collapse(false);
+        sel?.removeAllRanges();
+        sel?.addRange(range);
+      }
+    }, 2);
+  }
+
+  createTagComponent(tag: Tag, searchComponent:ComponentRef<DataTagSearchComponent>) {
+
+    const componentRef = this.paragraphContainer()?.createComponent(DataTagComponent);
+    if (!componentRef) return;
+
+    componentRef.setInput('tag', tag);
+
+    const nativeElement = componentRef.location.nativeElement;
+    nativeElement.setAttribute('contenteditable', 'false');
+
+    const textNode = this.renderer.createText(" ");
+
+    this.renderer.appendChild(searchComponent.location.nativeElement, textNode);
     
+    
+
+    setTimeout(() => {
+      this.renderer.insertBefore(this.currentParagraph()?.nativeElement, nativeElement, searchComponent.location.nativeElement);
+      searchComponent.destroy();
+    }, 2);
+
+      
+    
+    
+  }
+
+  updateCaretPosition() {
+
     const selection = window.getSelection();
 
     if (!selection) return;
 
-    let caretPosition = selection && selection.rangeCount > 0 ? selection.getRangeAt(0) : 0;
+    let caretPosition = selection && selection.rangeCount > 0 ? selection.getRangeAt(0) : null;
 
     const paragraph = this.currentParagraph()?.nativeElement as HTMLParagraphElement;
 
-    if(paragraph.contains(selection.anchorNode as Node)){
+    if (paragraph.contains(selection.anchorNode as Node)) {
+
       this.caretPosition.set(caretPosition);
     }
 
   }
 
-  addTag(tagName: string, data?: any) {
-    const id = this.generateRandomId();
-    const tag = {
-      id,
-      name: tagName,
-      data: data,
-      selected: false
-    };
 
-    this.tags.update((tags) => {
-      return [...tags, tag]
-    })
-    this.onTagAdded.emit(tag);
-  }
-
-  removeTag(tagId: string) {
-    let tag: Tag | undefined = undefined;
-    this.tags.update((tags) => {
-      tag = tags.find(tag => tag.id === tagId);
-      if (tag) {
-        this.onTagRemoved.emit(tag);
-      }
-      return tags.filter(tag => tag.id !== tagId);
-    });
-  }
-
-  createTagComponent(tag: Tag) {
-    const tagElement = this.rederer.createElement('app-data-tag', tag.id);
-    this.rederer.setAttribute(tagElement, 'id', tag.id);
-    this.rederer.setProperty(tagElement, 'tag', tag);
-    this.rederer.listen(tagElement, 'click', (event: MouseEvent) => {
-      event.stopPropagation();
-      this.onTagSelected.emit(tag);
-    });
-    return tagElement;
-  }
 
   generateRandomId(length: number = 8): string {
     const characters = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789';

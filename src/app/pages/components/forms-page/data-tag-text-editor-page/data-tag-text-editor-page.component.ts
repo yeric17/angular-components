@@ -11,10 +11,56 @@ import { SelectComponent } from '../../../../components/forms/select/select.comp
   styleUrl: './data-tag-text-editor-page.component.scss'
 })
 export class DataTagTextEditorPageComponent {
-  tags = signal<Tag[]>([]);
+  tagList = signal<Tag[]>([
+    {
+      id: '1',
+      name: 'John Doe',
+      data: {
+        email: 'john.doe@example.com',
+        phone: '+1 555-123-4567'
+      },
+      selected: false
+    },
+    {
+      id: '2',
+      name: 'Jane Smith',
+      data: {
+        email: 'jane.smith@example.com',
+        phone: '+1 555-234-5678'
+      },
+      selected: false
+    },
+    {
+      id: '3',
+      name: 'Carlos Rodriguez',
+      data: {
+        email: 'carlos.rodriguez@example.com',
+        phone: '+1 555-345-6789'
+      },
+      selected: false
+    },
+    {
+      id: '4',
+      name: 'Maria Garcia',
+      data: {
+        email: 'maria.garcia@example.com',
+        phone: '+1 555-456-7890'
+      },
+      selected: false
+    },
+    {
+      id: '5',
+      name: 'Alex Johnson',
+      data: {
+        email: 'alex.johnson@example.com',
+        phone: '+1 555-567-8901'
+      },
+      selected: false
+    }
+  ]);
   
 
   checkInsertTag(event: KeyboardEvent) {
-    return event.key === '#';
+    return event.key === '#'
   }
 }
