@@ -38,7 +38,7 @@ export class DataTagTextEditorComponent implements OnInit {
   protected insertedTags = signal<Tag[]>([]);
   protected removedTags = signal<Tag[]>([]);
 
-  // Nuevo: Mapa para almacenar los ComponentRef de los tags por id
+  // New: Map to store the ComponentRefs of tags by id
   protected tagComponentRefs = new Map<string, ComponentRef<DataTagComponent>>();
   //#endregion
 
@@ -167,22 +167,22 @@ export class DataTagTextEditorComponent implements OnInit {
 
     if(this.editorStateMachine().currentState?.name !== 'undo-changes') return;
 
-    // Detectar si el nodo agregado es un tag
+    // Detect if the added node is a tag
     const addedNode = mutation.addedNodes.item(0) as HTMLElement;
     if (!addedNode || addedNode.tagName !== DATA_TAG_ELEMENT_NAME) return;
 
-    // Obtener el uniqueId del tag del span interno
+    // Get the uniqueId of the tag from the inner span
     const innerSpan = addedNode.querySelector('span') as HTMLElement;
     if (!innerSpan) return;
     const uniqueId = innerSpan.getAttribute('data-tag-uniqueid');
     if (!uniqueId) return;
-    // Si ya existe un ComponentRef para este uniqueId, no hacer nada (ya está en el DOM)
+    // If a ComponentRef already exists for this uniqueId, do nothing (already in the DOM)
     if (this.tagComponentRefs.has(uniqueId)) {
       return;
     }
 
 
-    // Si no existe, crear el componente y agregarlo al mapa
+    // If it does not exist, create the component and add it to the map
     const tagId = innerSpan.getAttribute('data-tag-id');
     const tag = this.insertedTags().find(tag => tag.id === tagId);
     if (!tag) return;
@@ -202,7 +202,7 @@ export class DataTagTextEditorComponent implements OnInit {
     // const uniqueId = innerSpan.getAttribute('data-tag-uniqueid');
     // if (!uniqueId) return;
 
-    // // Si existe el ComponentRef, destruirlo y quitarlo del mapa
+    // // If the ComponentRef exists, destroy it and remove it from the map
     // if (this.tagComponentRefs.has(uniqueId)) {
     //   // const compRef = this.tagComponentRefs.get(uniqueId)!;
     //   // compRef.destroy();
@@ -276,11 +276,11 @@ export class DataTagTextEditorComponent implements OnInit {
     const caretPosition = this.caretPosition();
     if (caretPosition === null) return;
 
-    // Crear el componente correctamente dentro del ViewContainerRef
+    // Properly create the component inside the ViewContainerRef
     const componentRef = this.paragraphContainerRef()?.createComponent(DataTagSearchComponent);
     if (!componentRef) return;
 
-    componentRef.setInput('initialChart', '#'); // Corrige el nombre del input también
+    componentRef.setInput('initialChart', '#'); // Also correct the input name
     componentRef.setInput('tags', this.tags());
 
     componentRef.instance.onChangeTagSelected.subscribe((tag: Tag) => {
@@ -290,23 +290,23 @@ export class DataTagTextEditorComponent implements OnInit {
     this.searchTagComponent.set(componentRef);
 
 
-    // Obtener el elemento renderizado del componente
+    // Get the rendered element of the component
     const nativeElement = componentRef.location.nativeElement;
 
-    // Crear un span temporal como punto de inserción del caret
+    // Create a temporary span as a caret insertion point
     const spanMarker = this.renderer.createElement('span');
-    spanMarker.textContent = '\u200B'; // caracter invisible
+    spanMarker.textContent = '\u200B'; // invisible character
     caretPosition.insertNode(spanMarker);
 
-    // Mover el componente justo después del marcador
+    // Move the component right after the marker
     spanMarker.parentNode?.insertBefore(nativeElement, spanMarker.nextSibling);
 
 
 
-    // Limpiar el marcador
+    // Clean up the marker
     spanMarker.remove();
 
-    // Esperar a que el componente renderice
+    // Wait for the component to render
     setTimeout(() => {
       const input = nativeElement.querySelector('[data-focus]') as HTMLElement;
       input?.focus();
