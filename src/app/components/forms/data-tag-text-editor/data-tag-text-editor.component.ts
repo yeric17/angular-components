@@ -37,6 +37,9 @@ export class DataTagTextEditorComponent implements OnInit {
 
   protected insertedTags = signal<Tag[]>([]);
   protected removedTags = signal<Tag[]>([]);
+
+  // Nuevo: Mapa para almacenar los ComponentRef de los tags por id
+  protected tagComponentRefs = new Map<string, ComponentRef<DataTagComponent>>();
   //#endregion
 
   //#region Inputs
@@ -161,34 +164,50 @@ export class DataTagTextEditorComponent implements OnInit {
   }
 
   handleAddedMutation(mutation: MutationRecord) {
-    // if (this.editorStateMachine().currentState?.name !== 'undo-changes') return;
 
-    // const addedNode = mutation.addedNodes.item(0) as HTMLElement;
+    if(this.editorStateMachine().currentState?.name !== 'undo-changes') return;
 
-    
-    // if (addedNode.tagName !== DATA_TAG_ELEMENT_NAME) return;
+    // Detectar si el nodo agregado es un tag
+    const addedNode = mutation.addedNodes.item(0) as HTMLElement;
+    if (!addedNode || addedNode.tagName !== DATA_TAG_ELEMENT_NAME) return;
 
-    // const innerSpan = addedNode.querySelector('span') as HTMLElement;
-    
-    // const tagId = innerSpan.getAttribute('data-tag-id');
-    // const uniqueId = innerSpan.getAttribute('data-tag-uniqueid');
+    // Obtener el uniqueId del tag del span interno
+    const innerSpan = addedNode.querySelector('span') as HTMLElement;
+    if (!innerSpan) return;
+    const uniqueId = innerSpan.getAttribute('data-tag-uniqueid');
+    if (!uniqueId) return;
+    // Si ya existe un ComponentRef para este uniqueId, no hacer nada (ya está en el DOM)
+    if (this.tagComponentRefs.has(uniqueId)) {
+      return;
+    }
 
 
-
-    // const tag = this.insertedTags().find(tag => tag.id === tagId);
-    // if (tag === undefined) return;
-    // const component = this.createTagComponent(tag)
-
-    // if (!component) return;
-
-    // const { element: tagElement } = component;
-
-    // addedNode.replaceWith(tagElement);
-
+    // Si no existe, crear el componente y agregarlo al mapa
+    const tagId = innerSpan.getAttribute('data-tag-id');
+    const tag = this.insertedTags().find(tag => tag.id === tagId);
+    if (!tag) return;
+    const result = this.createTagComponent(tag, uniqueId);
+    if (!result) return;
+    const { element } = result;
+    addedNode.replaceWith(element);
   }
 
   handleRemovedMutation(mutation: MutationRecord) {
+    // if(this.editorStateMachine().currentState?.name !== 'CTRL+Z') return;
+    // const removedNode = mutation.removedNodes.item(0) as HTMLElement;
+    // if (!removedNode || removedNode.tagName !== DATA_TAG_ELEMENT_NAME) return;
 
+    // const innerSpan = removedNode.querySelector('span') as HTMLElement;
+    // if (!innerSpan) return;
+    // const uniqueId = innerSpan.getAttribute('data-tag-uniqueid');
+    // if (!uniqueId) return;
+
+    // // Si existe el ComponentRef, destruirlo y quitarlo del mapa
+    // if (this.tagComponentRefs.has(uniqueId)) {
+    //   // const compRef = this.tagComponentRefs.get(uniqueId)!;
+    //   // compRef.destroy();
+    //   this.tagComponentRefs.delete(uniqueId);
+    // }
   }
 
   checkCommands(event: KeyboardEvent) {
@@ -202,25 +221,27 @@ export class DataTagTextEditorComponent implements OnInit {
             if (this.isTagSelectionConfirmed()) {
               event.preventDefault();
 
-              this.renderTagComponent(this.selectedTag()!, this.searchTagComponent()!);
+              this.renderTagComponent(this.selectedTag()!, this.searchTagComponent()!)
+              .then(() => {
+                this.searchTagComponent.set(null);
+                this.selectedTag.set(null);
+                this.editorStateMachine().changeStateByName('Idle');
+              });
 
-              this.searchTagComponent.set(null);
-              this.selectedTag.set(null);
-              this.editorStateMachine().changeStateByName('Idle');
               return;
             }
           });
         }
         if (command.name === 'CTRL+Z') {
           command.command(() => {
-            event.preventDefault();
+            // event.preventDefault();
             //TODO: Implement undo changes
-            // this.editorStateMachine().changeStateByName('undo-changes');
+            this.editorStateMachine().changeStateByName('undo-changes');
 
-            // const timeout = setTimeout(() => {
-            //   this.editorStateMachine().changeStateByName('Idle');
-            //   clearTimeout(timeout);
-            // }, 2000);
+            const timeout = setTimeout(() => {
+              this.editorStateMachine().changeStateByName('Idle');
+              clearTimeout(timeout);
+            }, 2000);
           });
         }
       }
@@ -301,7 +322,7 @@ export class DataTagTextEditorComponent implements OnInit {
     }, 2);
   }
 
-  renderTagComponent(tag: Tag, searchComponent: ComponentRef<DataTagSearchComponent>) {
+  async renderTagComponent(tag: Tag, searchComponent: ComponentRef<DataTagSearchComponent>) {
 
     const result = this.createTagComponent(tag);
 
@@ -320,23 +341,30 @@ export class DataTagTextEditorComponent implements OnInit {
       return [...prev, tag]
     })
 
-    setTimeout(() => {
-      this.renderer.insertBefore(searchComponentElement.parentNode, nativeElement, searchComponentElement);
-      componentRef.setInput('visible', true);
-      searchComponent.destroy();
-    }, 0);
+    await new Promise(resolve => setTimeout(resolve, 0));
+    this.renderer.insertBefore(searchComponentElement.parentNode, nativeElement, searchComponentElement);
+    componentRef.setInput('visible', true);
+    searchComponent.destroy();
 
   }
 
 
-  createTagComponent(tag: Tag): { component: ComponentRef<DataTagComponent>, element: any } | null {
+  createTagComponent(tag: Tag, uniqueIdOverride?: string): { component: ComponentRef<DataTagComponent>, element: any } | null {
     const componentRef = this.paragraphContainerRef()?.createComponent(DataTagComponent);
     if (!componentRef) return null;
 
     componentRef.setInput('tag', tag);
+    if(uniqueIdOverride){
+      componentRef.instance.setUniqueId(uniqueIdOverride);
+    }
 
+    
     const nativeElement = componentRef.location.nativeElement;
-    nativeElement.setAttribute('contenteditable', 'false');
+    
+    
+    const uniqueId = componentRef.instance.getUniqueId();
+
+    this.tagComponentRefs.set(uniqueId, componentRef);
 
     return { component: componentRef, element: nativeElement };
   }
@@ -429,6 +457,10 @@ export class DataTagTextEditorComponent implements OnInit {
 
     return node.nodeType === Node.ELEMENT_NODE &&
       (node as HTMLElement).nodeName === DATA_TAG_ELEMENT_NAME
+  }
+
+  editorTextContent(): string {
+    return this.editorInput()?.nativeElement.textContent || '';
   }
 
   //#endregion

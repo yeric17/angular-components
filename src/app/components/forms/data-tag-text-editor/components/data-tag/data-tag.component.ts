@@ -29,6 +29,7 @@ export class DataTagComponent  {
   selectTag(event: MouseEvent) {
     event.stopPropagation();
     this.onSelectTag.emit(this.tag());
+    console.log('Tag selected:', this.tag());
   }
 
   updateTagName(event: Event) {
@@ -38,5 +39,14 @@ export class DataTagComponent  {
       return tag;
     })
   }
+
+  setUniqueId(newUniqueId: string) {  
+    this.uniqueId = newUniqueId;
+  }
+
+  getUniqueId() {
+    return this.uniqueId;
+  }
+
   
 }
