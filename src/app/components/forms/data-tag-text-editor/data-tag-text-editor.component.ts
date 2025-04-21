@@ -234,8 +234,6 @@ export class DataTagTextEditorComponent implements OnInit {
         }
         if (command.name === 'CTRL+Z') {
           command.command(() => {
-            // event.preventDefault();
-            //TODO: Implement undo changes
             this.editorStateMachine().changeStateByName('undo-changes');
 
             const timeout = setTimeout(() => {
