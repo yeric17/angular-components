@@ -1,4 +1,4 @@
-import { Component, ElementRef, input, linkedSignal, OnChanges, OnInit, output, signal, viewChild } from '@angular/core';
+import { Component, ElementRef, input, linkedSignal, model, OnChanges, OnInit, output, signal, viewChild } from '@angular/core';
 import { commands } from '../../data/text-editor-commands.data';
 import { Tag } from '../../models/text-editor-model';
 
@@ -12,32 +12,39 @@ export class DataTagSearchComponent implements OnInit {
 
   //#region DOM Elements
   protected searchInput = viewChild('searchInput', { read: ElementRef<HTMLInputElement> });
+  protected initialChart = signal<string>('');
+  //#endregion
+
+
+
+  //#region Inputs
+  tags = input.required<Tag[]>();
+  value =  model.required<string>();
+
+  //#endregion
+
+  //#region Outputs
+  onChangeTagSelected = output<Tag|null>();
+  onSearchFinished = output();
   //#endregion
 
   //#region Properties
-  protected value = signal<string>('');
 
-  //#endregion
-
-  //#region Inputs
-  initialChart = input.required<string>();
-  tags = input.required<Tag[]>();
   filteredTags = linkedSignal({
     source: this.value,
     computation: () => {
-      const value = this.value();
+      const value = this.value().substring(1);
       if (!value) {
         return this.tags();
       }
       const filtered = [...this.tags().filter((tag) => tag.name.toLowerCase().includes(value.toLowerCase()))];
+      if(filtered.length === 0){
+        this.onChangeTagSelected.emit(null);
+        
+      }
       return filtered;
     }
   });
-  //#endregion
-
-  //#region Outputs
-  onChangeTagSelected = output<Tag>();
-  //#endregion
 
   protected selectedTag = linkedSignal({
     source: this.filteredTags,
@@ -47,24 +54,32 @@ export class DataTagSearchComponent implements OnInit {
       return tag;
     }
   });
+  //#endregion
 
 
   ngOnInit(): void {
-    console.log(this.searchInput())
-    this.searchInput()?.nativeElement.addEventListener('input', () => {
-      console.log('Input event triggered');
-    });
+
+    const nativeElement = this.searchInput()?.nativeElement;
+
+    this.initialChart.set(this.value());
+    setTimeout(() => {
+      nativeElement.focus();
+    }, 20);
+
   }
 
-  public inputChange(): void {
-    let value = this.searchInput()?.nativeElement.textContent;
-    value = value.replace(/#|\n/g, '');
+  public inputChange(event: Event): void {
+    const target = event.target as HTMLInputElement;
 
+    let value = target.value;
+
+    if(!value.startsWith(this.initialChart())){
+      this.onSearchFinished.emit();
+      return;
+    }
 
     this.value.set(value ?? '');
 
-
-    console.log(this.value())
   }
 
   selectTag(tag: Tag): void {
@@ -80,7 +95,7 @@ export class DataTagSearchComponent implements OnInit {
       this.selectedTag.set(this.filteredTags()[nextIndex]);
       this.onChangeTagSelected.emit(this.selectedTag());
       return;
-    } 
+    }
 
     if (event.key === 'ArrowUp') {
       event.preventDefault();

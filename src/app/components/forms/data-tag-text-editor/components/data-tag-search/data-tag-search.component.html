@@ -1,16 +1,12 @@
-<div 
-class="text-editor__search" 
-data-focus
-#searchInput
-tabindex="0"
-contenteditable="true"
->
-{{initialChart()}}
-</div>
+<input class="text-editor__search" data-focus #searchInput tabindex="0" [value]="value()"
+    (input)="inputChange($event)" />
+@if(filteredTags().length > 0){
 <div class="text-editor__search__tags">
     @for(tag of filteredTags(); track $index){
-        <div class="text-editor__search__tag" [class.selected]="selectedTag()!.name === tag.name" (click)="selectTag(tag)" contenteditable="false">
-            <span class="text-editor__search__tag__name">{{tag.name}}</span>
-        </div>
+            <div class="text-editor__search__tag" [class.selected]="selectedTag()!.name === tag.name" (click)="selectTag(tag)"
+                contenteditable="false">
+                <span class="text-editor__search__tag__name">{{tag.name}}</span>
+            </div>
     }
-</div>
+    </div>
+}

@@ -2,6 +2,10 @@
     position: relative;
 }
 
+.text-editor__search-container{
+    display: inline-flex;
+}
+
 .text-editor__search{
     background: var(--color-blue-100);
     border: none;
@@ -9,6 +13,8 @@
     display: inline-block;
     min-width: 1ch;
     min-height: 1rem;
+    font-family: inherit;
+    font-size: inherit;
 }
 
 .text-editor__search__tags{

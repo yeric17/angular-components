@@ -3,13 +3,15 @@ import { EditorStateMachine, Tag, TextEditorCommand, TextEditorData, TextEditorI
 import { commands, editorStates } from './data/text-editor-commands.data';
 import { DataTagComponent } from './components/data-tag/data-tag.component';
 import { DataTagSearchComponent } from './components/data-tag-search/data-tag-search.component';
+import { JsonPipe } from '@angular/common';
 
 const DATA_TAG_ELEMENT_NAME = 'APP-DATA-TAG';
+const DATA_TAG_SEARCH_ELEMENT_NAME = 'APP-DATA-TAG-SEARCH';
 
 
 @Component({
   selector: 'app-data-tag-text-editor',
-  imports: [],
+  imports: [JsonPipe],
   templateUrl: './data-tag-text-editor.component.html',
   styleUrl: './data-tag-text-editor.component.scss'
 })
@@ -46,6 +48,7 @@ export class DataTagTextEditorComponent implements OnInit {
   tags = model.required<Tag[]>();
   placeholder = model<string>('');
   searchTagKey = model<string>('@');
+  value = model<TextEditorData[]>([]);
   //#endregion
 
   //#region Outputs
@@ -80,12 +83,13 @@ export class DataTagTextEditorComponent implements OnInit {
 
     this.editorStateMachine().update();
 
-    if (!this.originParagraphElement()?.nativeElement.querySelector('br')) {
-      const br = this.renderer.createElement('br');
-      this.renderer.appendChild(this.originParagraphElement()?.nativeElement, br);
-    }
+    // if (!this.originParagraphElement()?.nativeElement.querySelector('br')) {
+    //   const br = this.renderer.createElement('br');
+    //   this.renderer.appendChild(this.originParagraphElement()?.nativeElement, br);
+    // }
     this.updateCaretPosition();
-    this.searchTagComponent()?.instance.inputChange();
+    // this.searchTagComponent()?.instance.inputChange();
+    this.value.set(this.editorToData());
   }
 
   keyDown(event: KeyboardEvent) {
@@ -145,7 +149,6 @@ export class DataTagTextEditorComponent implements OnInit {
 
   handleMutation(mutations: MutationRecord[]) {
 
-    console.log(mutations);
     for (const mutation of mutations) {
       if (mutation.addedNodes.length === 0 && mutation.removedNodes.length === 0) continue;
       if (mutation.addedNodes.item(0)?.nodeType === Node.ELEMENT_NODE && (mutation.addedNodes.item(0) as HTMLElement).tagName === 'BR') continue;
@@ -226,8 +229,8 @@ export class DataTagTextEditorComponent implements OnInit {
                 this.searchTagComponent.set(null);
                 this.selectedTag.set(null);
                 this.editorStateMachine().changeStateByName('Idle');
+                this.value.set(this.editorToData());
               });
-
               return;
             }
           });
@@ -251,7 +254,7 @@ export class DataTagTextEditorComponent implements OnInit {
 
     const originParagraph = this.originParagraphElement()?.nativeElement as HTMLElement;
 
-    if (editorInputElement.childNodes.length === 1 && editorInputElement.textContent?.length === 1) {
+    if (editorInputElement.childNodes.length === 1 && editorInputElement.textContent?.length === 0) {
       event.preventDefault();
       // Clear the paragraph when only a single character remains
       const textNode = Array.from(originParagraph.childNodes).find(node => node.nodeType === Node.TEXT_NODE);
@@ -278,11 +281,18 @@ export class DataTagTextEditorComponent implements OnInit {
     const componentRef = this.paragraphContainerRef()?.createComponent(DataTagSearchComponent);
     if (!componentRef) return;
 
-    componentRef.setInput('initialChart', this.searchTagKey()); // Also correct the input name
+    componentRef.setInput('value', this.searchTagKey()); // Also correct the input name
     componentRef.setInput('tags', this.tags());
 
-    componentRef.instance.onChangeTagSelected.subscribe((tag: Tag) => {
+    componentRef.instance.onChangeTagSelected.subscribe((tag: Tag|null) => {
+      
       this.selectedTag.set(tag);
+    })
+
+    componentRef.instance.onSearchFinished.subscribe(() => {
+      this.searchTagComponent()?.destroy()
+      this.searchTagComponent.set(null);
+      this.editorStateMachine().changeStateByName('Idle');
     })
 
     this.searchTagComponent.set(componentRef);
@@ -307,6 +317,7 @@ export class DataTagTextEditorComponent implements OnInit {
     // Wait for the component to render
     setTimeout(() => {
       const input = nativeElement.querySelector('[data-focus]') as HTMLElement;
+      componentRef.changeDetectorRef.detectChanges();
       input?.focus();
 
       if (input?.isContentEditable) {
@@ -342,8 +353,23 @@ export class DataTagTextEditorComponent implements OnInit {
     await new Promise(resolve => setTimeout(resolve, 0));
     this.renderer.insertBefore(searchComponentElement.parentNode, nativeElement, searchComponentElement);
     componentRef.setInput('visible', true);
-    searchComponent.destroy();
 
+    // Move caret after the inserted tag component
+    const range = document.createRange();
+    const selection = window.getSelection();
+    if (nativeElement.nextSibling) {
+      range.setStartAfter(nativeElement);
+    } else if (nativeElement.parentNode) {
+      // If no nextSibling, place at end of parent
+      range.selectNodeContents(nativeElement.parentNode);
+      range.collapse(false);
+    }
+    range.collapse(true);
+    selection?.removeAllRanges();
+    selection?.addRange(range);
+    
+    searchComponent.destroy();
+    
   }
 
 
@@ -420,7 +446,7 @@ export class DataTagTextEditorComponent implements OnInit {
 
           const text = node.textContent || '';
 
-          if (text.trim() === '' || node.nodeType == node.COMMENT_NODE) continue;
+          if (text.trim() === '' || node.nodeType == node.COMMENT_NODE || node.nodeName === DATA_TAG_SEARCH_ELEMENT_NAME) continue;
 
           let item: TextEditorItem = {
             type: TextEditorItemType.Text,
