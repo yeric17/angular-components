@@ -30,7 +30,7 @@ export const commands = signal<TextEditorCommand[]>([
         }
     },
     {
-        name: 'CTRL+Z',
+        name: 'Undo',
         command: (callback) => {
             callback();
         },

@@ -45,9 +45,7 @@ export class DataTagTextEditorComponent implements OnInit {
   //#region Inputs
   tags = model.required<Tag[]>();
   placeholder = model<string>('');
-  isInsertingTag = input<(event: KeyboardEvent) => boolean>((event: KeyboardEvent) => {
-    return event.key === '@';
-  });
+  searchTagKey = model<string>('@');
   //#endregion
 
   //#region Outputs
@@ -62,7 +60,9 @@ export class DataTagTextEditorComponent implements OnInit {
     this.commands.update((prev) => {
       let insertCommand = prev.find((command) => command.name === 'InsertTag');
       if (insertCommand) {
-        insertCommand.shouldExecute = this.isInsertingTag();
+        insertCommand.shouldExecute = (event: KeyboardEvent) => {
+          return event.key === this.searchTagKey()
+        };
       }
       return prev;
     });
@@ -232,7 +232,7 @@ export class DataTagTextEditorComponent implements OnInit {
             }
           });
         }
-        if (command.name === 'CTRL+Z') {
+        if (command.name === 'Undo') {
           command.command(() => {
             this.editorStateMachine().changeStateByName('undo-changes');
 
@@ -278,7 +278,7 @@ export class DataTagTextEditorComponent implements OnInit {
     const componentRef = this.paragraphContainerRef()?.createComponent(DataTagSearchComponent);
     if (!componentRef) return;
 
-    componentRef.setInput('initialChart', '#'); // Also correct the input name
+    componentRef.setInput('initialChart', this.searchTagKey()); // Also correct the input name
     componentRef.setInput('tags', this.tags());
 
     componentRef.instance.onChangeTagSelected.subscribe((tag: Tag) => {
