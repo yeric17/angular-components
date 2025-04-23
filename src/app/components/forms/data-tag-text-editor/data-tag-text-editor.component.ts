@@ -1,5 +1,5 @@
 import { Component, ComponentRef, ElementRef, inject, input, model, OnInit, output, Renderer2, signal, viewChild, ViewContainerRef } from '@angular/core';
-import { EditorStateMachine, Tag, TextEditorCommand, TextEditorData, TextEditorItem, TextEditorItemType } from './models/text-editor-model';
+import { EditorStateMachine, Tag, TextEditorCommand, TextEditorItem } from './models/text-editor-model';
 import { commands, editorStates } from './data/text-editor-commands.data';
 import { DataTagComponent } from './components/data-tag/data-tag.component';
 import { DataTagSearchComponent } from './components/data-tag-search/data-tag-search.component';
@@ -48,7 +48,7 @@ export class DataTagTextEditorComponent implements OnInit {
   tags = model.required<Tag[]>();
   placeholder = model<string>('');
   searchTagKey = model<string>('@');
-  value = model<TextEditorData[]>([]);
+  value = model<TextEditorItem[]>([]);
   //#endregion
 
   //#region Outputs
@@ -80,40 +80,51 @@ export class DataTagTextEditorComponent implements OnInit {
   //#endregion
 
   //#region Event Methods
-  initializeEditor(){
-    if(this.value().length === 0) return;
+  initializeEditor() {
+    if (this.value().length === 0) return;
 
     const editorInputElement = this.editorInput()?.nativeElement as HTMLDivElement;
     let currentParagraph = this.originParagraphElement()?.nativeElement as HTMLParagraphElement;
 
+    // Remove initial <br> if present
+    const firstBr = currentParagraph?.querySelector('br');
+    if (firstBr) {
+      this.renderer.removeChild(currentParagraph, firstBr);
+    }
+
     for (let i = 0; i < this.value().length; i++) {
       const element = this.value()[i];
 
-      if(i > 0 && element.items.length === 0){
-        const paragraph = this.renderer.createElement('p');
-        this.renderer.appendChild(editorInputElement, paragraph);
-        currentParagraph = paragraph;
-        continue;
-      }
-
-      for (const item of element.items) {
-        if (item.type === 'text') {
-          const textNode = this.renderer.createText(item.content);
-          this.renderer.appendChild(currentParagraph, textNode);
-        } else if (item.type === 'tag') {
-          const result = this.createTagComponent(item.tag!);
-          if (!result) return;
-          const { component: componentRef, element: nativeElement } = result;
-
-          this.renderer.appendChild(currentParagraph, nativeElement);
-
-          componentRef.setInput('visible', true);
+      if (element.type === 'paragraph') {
+        // For the first paragraph, use the existing element, for others create new
+        if (i > 0) {
+          const paragraph = this.renderer.createElement('p');
+          this.renderer.appendChild(editorInputElement, paragraph);
+          currentParagraph = paragraph;
+          if(element.childs?.length === 0) {
+            const br = this.renderer.createElement('br');
+            this.renderer.appendChild(currentParagraph, br);
+            continue;
+          }
         }
-        
+        // Render children of the paragraph
+        if (element.childs && Array.isArray(element.childs)) {
+          for (const item of element.childs) {
+            if (item.type === 'text') {
+              const textNode = this.renderer.createText(item.content?.text ?? '');
+              this.renderer.appendChild(currentParagraph, textNode);
+            } else if (item.type === 'tag') {
+              const result = this.createTagComponent(item.content?.tag!);
+              if (!result) return;
+              const { component: componentRef, element: nativeElement } = result;
+              this.renderer.appendChild(currentParagraph, nativeElement);
+              componentRef.setInput('visible', true);
+            }
+          }
+        }
       }
     }
   }
-
 
   inputChange(event: Event) {
     const element = event.target as HTMLElement;
@@ -461,54 +472,57 @@ export class DataTagTextEditorComponent implements OnInit {
     return result;
   }
 
-  editorToData(): TextEditorData[] {
+  editorToData(): TextEditorItem[] {
     const editorInputElement = this.editorInput()?.nativeElement as HTMLDivElement;
-    const editorData: TextEditorData[] = [];
+    const result: TextEditorItem[] = [];
 
-    for (let i = 0; i < editorInputElement.childNodes.length; i++) {
-
-      let currentEditorData: TextEditorData = {
-        items: []
-      }
-
-      editorData.push(currentEditorData);
-
-      const paragraphNode = editorInputElement.childNodes[i];
-
-      if (this.isParagraphNode(paragraphNode)) {
-
-        for (let j = 0; j < paragraphNode.childNodes.length; j++) {
-
-          const node = paragraphNode.childNodes[j];
-
-          const text = node.textContent || '';
-
-          if (text.trim() === '' || node.nodeType == node.COMMENT_NODE || node.nodeName === DATA_TAG_SEARCH_ELEMENT_NAME) continue;
-
-          let item: TextEditorItem = {
-            type: 'text',
-            content: text
+    let node = editorInputElement.firstChild;
+    while (node) {
+      if (this.isParagraphNode(node)) {
+        const paragraph: TextEditorItem = {
+          type: 'paragraph',
+          childs: [] as TextEditorItem[]
+        };
+        let child = node.firstChild;
+        while (child) {
+          if (child.nodeType === Node.TEXT_NODE) {
+            const text = child.textContent || '';
+            if (text.trim() !== '') {
+              paragraph.childs!.push({
+                type: 'text',
+                content: { text }
+              });
+            }
+          } else if (child.nodeType === Node.ELEMENT_NODE) {
+            const el = child as HTMLElement;
+            if (el.nodeName === DATA_TAG_ELEMENT_NAME) {
+              const tagId = el.querySelector('span')?.getAttribute('data-tag-id');
+              const tagInserted = this.insertedTags().find(tag => tag.id === tagId);
+              paragraph.childs!.push({
+                type: 'tag',
+                content: { text: '', tag: tagInserted }
+              });
+            } else if (el.nodeName === DATA_TAG_SEARCH_ELEMENT_NAME) {
+              // Ignore search component
+            } else {
+              // For other elements, treat their text content as text
+              const text = el.textContent || '';
+              if (text.trim() !== '') {
+                paragraph.childs!.push({
+                  type: 'text',
+                  content: { text }
+                });
+              }
+            }
           }
-
-          if (this.isTagNode(node)) {
-            item.type = 'tag';
-
-            const tagComponent = node as HTMLElement;
-            const tagId = tagComponent.querySelector('span')?.getAttribute('data-tag-id')
-
-            const tagInserted = this.insertedTags().find(tag => tag.id === tagId);
-
-            item.tag = tagInserted
-          }
-
-          currentEditorData.items.push(item);
+          child = child.nextSibling;
         }
+        result.push(paragraph);
       }
+      node = node.nextSibling;
     }
-
-    return editorData;
+    return result;
   }
-
 
   isParagraphNode(node: Node): boolean {
     return node.nodeType === Node.ELEMENT_NODE && (node as HTMLElement).tagName === 'P';

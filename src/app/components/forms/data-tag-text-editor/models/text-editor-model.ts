@@ -9,20 +9,17 @@ export interface Tag {
     data?: any
 }
 
-export interface TextEditorData {
-    items: TextEditorItem[]
-}
 
 export interface TextEditorItem {
     // id: string;
     type: TextEditorItemType;
-    content: string;
-    tag?: Tag;
+    content?: TextEditorItemData
+    childs?: TextEditorItem[]
 }
 
-export interface ItemContent {
+export interface TextEditorItemData {
     text: string
-
+    tag?: Tag
 }
 
 export type TextEditorItemType = "text" | "tag" | "paragraph"

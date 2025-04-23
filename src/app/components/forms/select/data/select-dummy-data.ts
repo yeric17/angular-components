@@ -1,4 +1,4 @@
-import { TextEditorData } from "../../data-tag-text-editor/models/text-editor-model";
+import { TextEditorItem } from "../../data-tag-text-editor/models/text-editor-model";
 
 export interface ExampleModel {
     id: number;
@@ -18,123 +18,96 @@ export const getExampleModelItems = (count: number): ExampleModel[] => {
     return items;
 }
 
-export const editorDataDummy: TextEditorData[] = [
+
+
+export const editorDataDummy: TextEditorItem[] = [
     {
-        items: [
-            { type: "text", content: "hola " },
+        type: "paragraph",
+        childs: [
+            {
+                type: "text",
+                content: {
+                    text: "Lorem ipsum dolor sit amet, consectetur adipiscing elit. Sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. con un nuevo tag ",
+                },
+            },
             {
                 type: "tag",
-                content: "John Doe",
-                tag: {
-                    id: "1",
-                    name: "John Doe",
-                    data: {
-                        email: "john.doe@example.com",
-                        phone: "+1 555-123-4567"
+                content: {
+                    text: "",
+                    tag: {
+                        id: "2",
+                        name: "Jane Smith",
+                        data: {
+                            email: "jane.smith@example.com",
+                            phone: "+1 555-234-5678"
+                        }
                     }
                 }
             },
-            { type: "text", content: " como va todo " },
             {
-                type: "tag",
-                content: "Carlos Rodriguez",
-                tag: {
-                    id: "3",
-                    name: "Carlos Rodriguez",
-                    data: {
-                        email: "carlos.rodriguez@example.com",
-                        phone: "+1 555-345-6789"
-                    }
-                }
-            },
-            { type: "text", content: " que esta pasando " },
-            {
-                type: "tag",
-                content: "Maria Garcia",
-                tag: {
-                    id: "4",
-                    name: "Maria Garcia",
-                    data: {
-                        email: "maria.garcia@example.com",
-                        phone: "+1 555-456-7890"
-                    }
-                }
-            },
-            { type: "text", content: " claro que si " },
-            {
-                type: "tag",
-                content: "Maria Garcia",
-                tag: {
-                    id: "4",
-                    name: "Maria Garcia",
-                    data: {
-                        email: "maria.garcia@example.com",
-                        phone: "+1 555-456-7890"
-                    }
-                }
+                type: "text",
+                content: {
+                    text: " ahora tiene una nueva estructura",
+                },
             }
         ]
     },
     {
-        items: [],
+        type: "paragraph",
+        childs: []
     },
     {
-        items: [],
+        type: "paragraph",
+        childs: []
     },
     {
-        items: [
-            { type: "text", content: "hola " },
+        type: "paragraph",
+        childs: [
+            {
+                type: "text",
+                content: {
+                    text: "que se puede moldear mas facilmente ",
+                },
+            },
             {
                 type: "tag",
-                content: "John Doe",
-                tag: {
-                    id: "1",
-                    name: "John Doe",
-                    data: {
-                        email: "john.doe@example.com",
-                        phone: "+1 555-123-4567"
+                content: {
+                    text: "",
+                    tag: {
+                        id: "4",
+                        name: "Maria Garcia",
+                        data: {
+                            email: "maria.garcia@example.com",
+                            phone: "+1 555-456-7890"
+                        }
                     }
                 }
             },
-            { type: "text", content: " como va todo " },
+            {
+                type: "text",
+                content: {
+                    text: " con esto puedo trabajar mejor para hacer las ediciones",
+                },
+            }
+        ]
+    },
+    {
+        type: "paragraph",
+        childs: [
             {
                 type: "tag",
-                content: "Carlos Rodriguez",
-                tag: {
-                    id: "3",
-                    name: "Carlos Rodriguez",
-                    data: {
-                        email: "carlos.rodriguez@example.com",
-                        phone: "+1 555-345-6789"
-                    }
-                }
-            },
-            { type: "text", content: " que esta pasando " },
-            {
-                type: "tag",
-                content: "Maria Garcia",
-                tag: {
-                    id: "4",
-                    name: "Maria Garcia",
-                    data: {
-                        email: "maria.garcia@example.com",
-                        phone: "+1 555-456-7890"
-                    }
-                }
-            },
-            { type: "text", content: " claro que si " },
-            {
-                type: "tag",
-                content: "Maria Garcia",
-                tag: {
-                    id: "4",
-                    name: "Maria Garcia",
-                    data: {
-                        email: "maria.garcia@example.com",
-                        phone: "+1 555-456-7890"
+                content: {
+                    text: "",
+                    tag: {
+                        id: "4",
+                        name: "Maria Garcia",
+                        data: {
+                            email: "maria.garcia@example.com",
+                            phone: "+1 555-456-7890"
+                        }
                     }
                 }
             }
         ]
-    },
+    }
 ];

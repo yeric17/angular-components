@@ -1,6 +1,6 @@
 import { Component, signal } from '@angular/core';
 import { DataTagTextEditorComponent } from '../../../../components/forms/data-tag-text-editor/data-tag-text-editor.component';
-import { Tag, TextEditorData } from '../../../../components/forms/data-tag-text-editor/models/text-editor-model';
+import { Tag, TextEditorItem } from '../../../../components/forms/data-tag-text-editor/models/text-editor-model';
 import { editorDataDummy } from '../../../../components/forms/select/data/select-dummy-data';
 
 @Component({
@@ -53,7 +53,7 @@ export class DataTagTextEditorPageComponent {
     }
   ]);
   
-  editorDummyData = signal<TextEditorData[]>(editorDataDummy);
+  editorDummyData = signal<TextEditorItem[]>(editorDataDummy);
 
   checkInsertTag(event: KeyboardEvent) {
     return event.key === '#'
