@@ -1,4 +1,4 @@
-import { Component, ComponentRef, ElementRef, inject, input, model, OnInit, output, Renderer2, signal, viewChild, ViewContainerRef } from '@angular/core';
+import { Component, ComponentRef, ElementRef, inject, input, model, OnInit, output, Renderer2, signal, TemplateRef, viewChild, ViewContainerRef } from '@angular/core';
 import { EditorStateMachine, Tag, TextEditorCommand, TextEditorItem } from './models/text-editor-model';
 import { commands, editorStates } from './data/text-editor-commands.data';
 import { DataTagComponent } from './components/data-tag/data-tag.component';
@@ -49,6 +49,7 @@ export class DataTagTextEditorComponent implements OnInit {
   placeholder = model<string>('');
   searchTagKey = model<string>('@');
   value = model<TextEditorItem[]>([]);
+  popoverTemplate = input<TemplateRef<any>>();
   //#endregion
 
   //#region Outputs
@@ -428,6 +429,10 @@ export class DataTagTextEditorComponent implements OnInit {
     componentRef.setInput('tag', tag);
     if(uniqueIdOverride){
       componentRef.instance.setUniqueId(uniqueIdOverride);
+    }
+
+    if(this.popoverTemplate()){
+      componentRef.setInput('popoverTemplate', this.popoverTemplate());
     }
 
     

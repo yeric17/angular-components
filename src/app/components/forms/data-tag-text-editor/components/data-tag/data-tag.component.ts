@@ -1,9 +1,10 @@
-import { Component, input, model, OnInit, output } from '@angular/core';
+import { Component, input, model, OnInit, output, TemplateRef } from '@angular/core';
 import { Tag } from '../../models/text-editor-model';
+import { PopoverDirective } from '../../../../popover/directives/popover.directive';
 
 @Component({
   selector: 'app-data-tag',
-  imports: [],
+  imports: [PopoverDirective],
   templateUrl: './data-tag.component.html',
   styleUrl: './data-tag.component.scss'
 })
@@ -18,6 +19,7 @@ export class DataTagComponent  {
 
   protected visible = input<boolean>(false);
 
+  popoverTemplate = input<TemplateRef<any>>();
   
 
   removeTag(event: MouseEvent) {
@@ -48,5 +50,7 @@ export class DataTagComponent  {
     return this.uniqueId;
   }
 
-  
+  tagDataKeys() {
+    return Object.keys(this.tag().data);
+  }
 }

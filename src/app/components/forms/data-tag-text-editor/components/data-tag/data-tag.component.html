@@ -5,7 +5,8 @@
     [attr.data-tag-id]="tag().id"
     [attr.data-tag-uniqueid]="uniqueId"
     [attr.data-tag-name]="tag().name"
-    [class.visible]="visible()">
+    [class.visible]="visible()"
+    [appPopover]="popoverTemplate() ?? defaultTemplate">
 
     <!-- <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="data-tag__icon" (click)="removeTag($event)">
         <path stroke-linecap="round" stroke-linejoin="round" d="M6 18 18 6M6 6l12 12" />
@@ -13,3 +14,13 @@
 
     <span class="data-tag__label">{{tag().name}}</span>
 </span>
+
+<ng-template #defaultTemplate>
+    <div class="popover__content">
+        <ul class="popover__list">
+            @for(key of tagDataKeys(); track $index){
+                <li class="popover__list-item">{{key}}: {{tag().data[key]}}</li>
+            }
+        </ul>
+    </div>
+</ng-template>
