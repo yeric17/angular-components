@@ -102,7 +102,7 @@ export class DataTagTextEditorComponent implements OnInit {
           const paragraph = this.renderer.createElement('p');
           this.renderer.appendChild(editorInputElement, paragraph);
           currentParagraph = paragraph;
-          if(element.childs?.length === 0) {
+          if (element.childs?.length === 0) {
             const br = this.renderer.createElement('br');
             this.renderer.appendChild(currentParagraph, br);
             continue;
@@ -114,14 +114,44 @@ export class DataTagTextEditorComponent implements OnInit {
             if (item.type === 'text') {
               const textNode = this.renderer.createText(item.content?.text ?? '');
               this.renderer.appendChild(currentParagraph, textNode);
-            } else if (item.type === 'tag') {
+            } 
+            else if (item.type === 'tag') {
               const result = this.createTagComponent(item.content?.tag!);
               if (!result) return;
               const { component: componentRef, element: nativeElement } = result;
               this.renderer.appendChild(currentParagraph, nativeElement);
+              const textNode = this.renderer.createText(" ");
+              this.renderer.appendChild(currentParagraph, textNode);
               componentRef.setInput('visible', true);
             }
           }
+        }
+      }
+    }
+  }
+
+  clickHandler(event: MouseEvent) {
+    this.updateCaretPosition();
+
+    const caretPosition = this.caretPosition();
+    if (!caretPosition) return;
+
+    const selection = window.getSelection();
+    
+    const node = selection?.anchorNode
+    
+    if(node?.nodeName === DATA_TAG_ELEMENT_NAME) {
+      if (caretPosition) {
+        // Move caret to after the tag element (parent of the anchorNode)
+        const parentElement = (node as HTMLElement).parentElement;
+        if (parentElement) {
+          const range = document.createRange();
+          range.setStartAfter(parentElement);
+          range.collapse(true);
+          const selection = window.getSelection();
+          selection?.removeAllRanges();
+          selection?.addRange(range);
+          this.caretPosition.set(range);
         }
       }
     }
@@ -217,7 +247,7 @@ export class DataTagTextEditorComponent implements OnInit {
 
   handleAddedMutation(mutation: MutationRecord) {
 
-    if(this.editorStateMachine().currentState?.name !== 'undo-changes') return;
+    if (this.editorStateMachine().currentState?.name !== 'undo-changes') return;
 
     // Detect if the added node is a tag
     const addedNode = mutation.addedNodes.item(0) as HTMLElement;
@@ -274,12 +304,12 @@ export class DataTagTextEditorComponent implements OnInit {
               event.preventDefault();
 
               this.renderTagComponent(this.selectedTag()!, this.searchTagComponent()!)
-              .then(() => {
-                this.searchTagComponent.set(null);
-                this.selectedTag.set(null);
-                this.editorStateMachine().changeStateByName('Idle');
-                this.value.set(this.editorToData());
-              });
+                .then(() => {
+                  this.searchTagComponent.set(null);
+                  this.selectedTag.set(null);
+                  this.editorStateMachine().changeStateByName('Idle');
+                  this.value.set(this.editorToData());
+                });
               return;
             }
           });
@@ -333,8 +363,8 @@ export class DataTagTextEditorComponent implements OnInit {
     componentRef.setInput('value', this.searchTagKey()); // Also correct the input name
     componentRef.setInput('tags', this.tags());
 
-    componentRef.instance.onChangeTagSelected.subscribe((tag: Tag|null) => {
-      
+    componentRef.instance.onChangeTagSelected.subscribe((tag: Tag | null) => {
+
       this.selectedTag.set(tag);
     })
 
@@ -401,24 +431,28 @@ export class DataTagTextEditorComponent implements OnInit {
 
     await new Promise(resolve => setTimeout(resolve, 0));
     this.renderer.insertBefore(searchComponentElement.parentNode, nativeElement, searchComponentElement);
+
+    const textNodeAfterTag = this.renderer.createText(" ");
+    this.renderer.insertBefore(nativeElement.parentNode, textNodeAfterTag, nativeElement.nextSibling);
+
     componentRef.setInput('visible', true);
 
     // Move caret after the inserted tag component
     const range = document.createRange();
     const selection = window.getSelection();
-    if (nativeElement.nextSibling) {
-      range.setStartAfter(nativeElement);
-    } else if (nativeElement.parentNode) {
+    if (textNodeAfterTag.nextSibling) {
+      range.setStartAfter(textNodeAfterTag);
+    } else if (textNodeAfterTag.parentNode) {
       // If no nextSibling, place at end of parent
-      range.selectNodeContents(nativeElement.parentNode);
+      range.selectNodeContents(textNodeAfterTag.parentNode);
       range.collapse(false);
     }
     range.collapse(true);
     selection?.removeAllRanges();
     selection?.addRange(range);
-    
+
     searchComponent.destroy();
-    
+
   }
 
 
@@ -427,18 +461,18 @@ export class DataTagTextEditorComponent implements OnInit {
     if (!componentRef) return null;
 
     componentRef.setInput('tag', tag);
-    if(uniqueIdOverride){
+    if (uniqueIdOverride) {
       componentRef.instance.setUniqueId(uniqueIdOverride);
     }
 
-    if(this.popoverTemplate()){
+    if (this.popoverTemplate()) {
       componentRef.setInput('popoverTemplate', this.popoverTemplate());
     }
 
-    
+
     const nativeElement = componentRef.location.nativeElement;
-    
-    
+
+
     const uniqueId = componentRef.instance.getUniqueId();
 
     this.tagComponentRefs.set(uniqueId, componentRef);
@@ -498,7 +532,8 @@ export class DataTagTextEditorComponent implements OnInit {
                 content: { text }
               });
             }
-          } else if (child.nodeType === Node.ELEMENT_NODE) {
+          } 
+          else if (child.nodeType === Node.ELEMENT_NODE) {
             const el = child as HTMLElement;
             if (el.nodeName === DATA_TAG_ELEMENT_NAME) {
               const tagId = el.querySelector('span')?.getAttribute('data-tag-id');
@@ -507,9 +542,11 @@ export class DataTagTextEditorComponent implements OnInit {
                 type: 'tag',
                 content: { text: '', tag: tagInserted }
               });
-            } else if (el.nodeName === DATA_TAG_SEARCH_ELEMENT_NAME) {
+            } 
+            else if (el.nodeName === DATA_TAG_SEARCH_ELEMENT_NAME) {
               // Ignore search component
-            } else {
+            } 
+            else {
               // For other elements, treat their text content as text
               const text = el.textContent || '';
               if (text.trim() !== '') {
