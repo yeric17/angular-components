@@ -14,15 +14,18 @@ export interface TextEditorData {
 }
 
 export interface TextEditorItem {
+    // id: string;
     type: TextEditorItemType;
     content: string;
     tag?: Tag;
 }
 
-export const enum TextEditorItemType {
-    Text = 'text',
-    Tag = 'tag'
+export interface ItemContent {
+    text: string
+
 }
+
+export type TextEditorItemType = "text" | "tag" | "paragraph"
 
 export interface TextEditorCommand {
     name:string

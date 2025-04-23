@@ -74,10 +74,47 @@ export class DataTagTextEditorComponent implements OnInit {
       this.handleMutation(mutations);
     });
     mutationObserver.observe(this.editorInput()!.nativeElement, { childList: true, subtree: true });
+
+    this.initializeEditor();
   }
   //#endregion
 
   //#region Event Methods
+  initializeEditor(){
+    if(this.value().length === 0) return;
+
+    const editorInputElement = this.editorInput()?.nativeElement as HTMLDivElement;
+    let currentParagraph = this.originParagraphElement()?.nativeElement as HTMLParagraphElement;
+
+    for (let i = 0; i < this.value().length; i++) {
+      const element = this.value()[i];
+
+      if(i > 0 && element.items.length === 0){
+        const paragraph = this.renderer.createElement('p');
+        this.renderer.appendChild(editorInputElement, paragraph);
+        currentParagraph = paragraph;
+        continue;
+      }
+
+      for (const item of element.items) {
+        if (item.type === 'text') {
+          const textNode = this.renderer.createText(item.content);
+          this.renderer.appendChild(currentParagraph, textNode);
+        } else if (item.type === 'tag') {
+          const result = this.createTagComponent(item.tag!);
+          if (!result) return;
+          const { component: componentRef, element: nativeElement } = result;
+
+          this.renderer.appendChild(currentParagraph, nativeElement);
+
+          componentRef.setInput('visible', true);
+        }
+        
+      }
+    }
+  }
+
+
   inputChange(event: Event) {
     const element = event.target as HTMLElement;
 
@@ -449,12 +486,12 @@ export class DataTagTextEditorComponent implements OnInit {
           if (text.trim() === '' || node.nodeType == node.COMMENT_NODE || node.nodeName === DATA_TAG_SEARCH_ELEMENT_NAME) continue;
 
           let item: TextEditorItem = {
-            type: TextEditorItemType.Text,
+            type: 'text',
             content: text
           }
 
           if (this.isTagNode(node)) {
-            item.type = TextEditorItemType.Tag;
+            item.type = 'tag';
 
             const tagComponent = node as HTMLElement;
             const tagId = tagComponent.querySelector('span')?.getAttribute('data-tag-id')
